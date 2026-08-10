@@ -27,6 +27,7 @@ let lastX = 0;
 let lastY = 0;
 let cleanup: Array<() => void> = [];
 let resizeTimer: number | null = null;
+let resizeObserver: ResizeObserver | null = null;
 
 function on(el: EventTarget, type: string, handler: EventListenerOrEventListenerObject): void {
   el.addEventListener(type, handler);
@@ -82,20 +83,40 @@ function mount(container: HTMLElement): void {
     crumpleAndClear();
   });
 
-  const onResize = () => {
+  // Zwei Quellen bewusst kombiniert: Der ResizeObserver greift auch bei
+  // iPad-Split-View/Stage Manager, wird aber über die Frame-Schleife
+  // zugestellt und fällt aus, wenn die App gedrosselt wird; window.resize
+  // deckt das Drehen zuverlässig ab. Beide laufen in denselben Refit.
+  let lastW = stageEl.clientWidth;
+  let lastH = stageEl.clientHeight;
+
+  const refitIfChanged = () => {
+    if (!stageEl) return;
+    const w = stageEl.clientWidth;
+    const h = stageEl.clientHeight;
+    if (w === lastW && h === lastH) return;
+    lastW = w;
+    lastH = h;
     if (resizeTimer !== null) window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
       fitCanvas();
       restoreImage();
     }, 200);
   };
-  on(window, 'resize', onResize);
+
+  resizeObserver = new ResizeObserver(refitIfChanged);
+  resizeObserver.observe(stageEl);
+  on(window, 'resize', refitIfChanged);
+  on(window, 'orientationchange', refitIfChanged);
 }
 
 function fitCanvas(): void {
   if (!canvas || !stageEl) return;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const rect = stageEl.getBoundingClientRect();
+  // clientWidth/Height statt getBoundingClientRect(): Beim Öffnen läuft noch der
+  // scale(0.92)→scale(1)-Übergang der Spielzeug-Ansicht; der Rect wäre dann zu
+  // klein und die Leinwand würde den Rand nicht erreichen.
+  const rect = { width: stageEl.clientWidth, height: stageEl.clientHeight };
   canvas.width = Math.round(rect.width * dpr);
   canvas.height = Math.round(rect.height * dpr);
   canvas.style.width = `${rect.width}px`;
@@ -132,8 +153,13 @@ function persistImage(): void {
 }
 
 function getPos(e: PointerEvent): { x: number; y: number } {
-  const rect = canvas!.getBoundingClientRect();
-  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  const c = canvas!;
+  const rect = c.getBoundingClientRect();
+  // Während des Öffnungs-Übergangs ist der Rect skaliert — zurück in den
+  // Zeichen-Koordinatenraum rechnen, damit der Strich unter dem Finger bleibt.
+  const sx = rect.width === 0 ? 1 : c.clientWidth / rect.width;
+  const sy = rect.height === 0 ? 1 : c.clientHeight / rect.height;
+  return { x: (e.clientX - rect.left) * sx, y: (e.clientY - rect.top) * sy };
 }
 
 function onPointerDown(e: Event): void {
@@ -215,6 +241,8 @@ function crumpleAndClear(): void {
 function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
+  resizeObserver?.disconnect();
+  resizeObserver = null;
   if (resizeTimer !== null) {
     window.clearTimeout(resizeTimer);
     resizeTimer = null;

@@ -1252,3 +1252,92 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .blase { animation-duration: 26s !important; }
 }
+
+/* ---------- Putzen ---------- */
+
+.putzen-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 40%, #f3ece1 0%, #e6dcc9 100%);
+}
+
+.putzen-motiv {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 420ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.putzen-motiv svg {
+  width: min(62vw, 62vh, 420px);
+  height: min(62vw, 62vh, 420px);
+}
+
+.putzen-stage.sauber .putzen-motiv {
+  transform: scale(1.06);
+}
+
+.putzen-canvas {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: grab;
+}
+
+/* Funkeln, sobald alles sauber ist */
+
+.putzen-funkeln {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, transparent 62%),
+    radial-gradient(circle, rgba(255, 245, 200, 0.9) 0%, transparent 62%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 62%);
+  background-size: 26px 26px, 20px 20px, 16px 16px;
+  background-position: 24% 28%, 72% 36%, 56% 70%;
+  background-repeat: no-repeat;
+}
+
+.putzen-stage.sauber .putzen-funkeln {
+  opacity: 1;
+  animation: funkeln 2.4s ease-in-out infinite;
+}
+
+@keyframes funkeln {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+/* Nächstes Motiv */
+
+.putzen-next {
+  position: absolute;
+  bottom: calc(var(--safe-b) + 20px);
+  right: calc(var(--safe-r) + 20px);
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #fffaf2;
+  border: none;
+  box-shadow: 0 8px 18px rgba(120, 90, 50, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 150ms ease-out;
+  z-index: 5;
+}
+
+.putzen-next:active {
+  transform: scale(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .putzen-stage.sauber .putzen-funkeln { animation: none; }
+}
