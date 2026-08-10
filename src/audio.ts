@@ -1,0 +1,78 @@
+let ctx: AudioContext | null = null;
+let masterGain: GainNode | null = null;
+let unlocked = false;
+
+function ensureContext(): AudioContext | null {
+  if (ctx) return ctx;
+  const Ctor = window.AudioContext ?? (window as any).webkitAudioContext;
+  if (!Ctor) return null;
+  ctx = new Ctor();
+  masterGain = ctx.createGain();
+  masterGain.gain.value = getVolume();
+  masterGain.connect(ctx.destination);
+  return ctx;
+}
+
+export function unlockAudio(): void {
+  if (unlocked) return;
+  const c = ensureContext();
+  if (!c) return;
+  if (c.state === 'suspended') {
+    c.resume().catch(() => {});
+  }
+  unlocked = true;
+}
+
+let volume = 0.6;
+
+function getVolume(): number {
+  return volume;
+}
+
+export function setVolume(v: number): void {
+  volume = Math.max(0, Math.min(1, v));
+  if (masterGain) masterGain.gain.value = volume;
+}
+
+export function isAudioReady(): boolean {
+  return !!ctx && ctx.state === 'running';
+}
+
+/**
+ * Pentatonische Skala (C-Dur-Pentatonik) — jede Kombination klingt harmonisch.
+ */
+export const PENTATONIC_HZ = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25];
+
+interface ToneOptions {
+  freq: number;
+  duration?: number;
+  attack?: number;
+  release?: number;
+  type?: OscillatorType;
+  gain?: number;
+}
+
+export function playTone(opts: ToneOptions): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const { freq, duration = 0.5, attack = 0.02, release = 0.35, type = 'sine', gain = 0.5 } = opts;
+
+  const osc = c.createOscillator();
+  osc.type = type;
+  osc.frequency.value = freq;
+
+  const env = c.createGain();
+  env.gain.setValueAtTime(0, c.currentTime);
+  env.gain.linearRampToValueAtTime(gain, c.currentTime + attack);
+  env.gain.linearRampToValueAtTime(0, c.currentTime + attack + duration + release);
+
+  osc.connect(env);
+  env.connect(masterGain);
+
+  osc.start();
+  osc.stop(c.currentTime + attack + duration + release + 0.05);
+}
+
+export function playClick(freq = 440): void {
+  playTone({ freq, duration: 0.03, attack: 0.002, release: 0.08, type: 'triangle', gain: 0.3 });
+}
