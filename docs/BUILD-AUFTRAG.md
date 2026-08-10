@@ -32,7 +32,8 @@ Lies vor Beginn: `CLAUDE.md` (Projektregeln) und `docs/PLAN.md` (was gebaut wird
   einrichten, `.gitignore` (node_modules, dist), `vite.config.ts` mit
   `base: '/spielkiste/'`.
 - `.claude/launch.json` für den Dev-Server anlegen (npm run dev, Port 5173).
-- Öffentliches GitHub-Repo `spielkiste` per `gh` anlegen, `main` pushen.
+- Das öffentliche GitHub-Repo existiert bereits: https://github.com/theminhnguyen/spielkiste
+  (in der Planungs-Session angelegt) — einfach weiter auf `main` pushen.
 - Deploy-Skript `npm run deploy`: baut und pusht `dist/` auf Branch `gh-pages`
   (z. B. via `gh-pages`-Paket). GitHub Pages auf Branch `gh-pages` stellen
   (`gh api`). **Kein GitHub-Actions-Workflow.**
