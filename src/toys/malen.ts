@@ -198,9 +198,14 @@ function crumpleAndClear(): void {
   saveState<MalenState>(STATE_KEY, STATE_VERSION, { dataUrl: null });
   playClick(300);
 
-  requestAnimationFrame(() => {
-    overlay.classList.add('crumpling');
-  });
+  // Forced Reflow statt requestAnimationFrame: rAF wird in Hintergrund-/
+  // verdeckten Tabs gedrosselt und feuert dort nicht zuverlässig (siehe
+  // main.ts-Historie). Das synchrone Auslesen von offsetWidth zwingt den
+  // Browser, den "Vorher"-Zustand zu committen, bevor die Klasse (und damit
+  // der CSS-Transition-Übergang) gesetzt wird — funktioniert unabhängig
+  // von rAF-Timing.
+  void overlay.offsetWidth;
+  overlay.classList.add('crumpling');
 
   window.setTimeout(() => {
     overlay.remove();

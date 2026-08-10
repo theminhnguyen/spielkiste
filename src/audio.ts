@@ -25,7 +25,7 @@ export function unlockAudio(): void {
 
 let volume = 0.6;
 
-function getVolume(): number {
+export function getVolume(): number {
   return volume;
 }
 

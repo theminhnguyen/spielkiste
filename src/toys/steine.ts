@@ -195,6 +195,15 @@ function setupTowerInteraction(towerEl: HTMLElement, towerIndex: number): void {
       giggleWobble(towerEl);
     }
   });
+
+  towerEl.addEventListener('pointercancel', (e) => {
+    const pe = e as PointerEvent;
+    try {
+      towerEl.releasePointerCapture(pe.pointerId);
+    } catch {
+      /* bereits freigegeben */
+    }
+  });
 }
 
 function giggleWobble(towerEl: HTMLElement): void {
@@ -239,12 +248,16 @@ function startShelfDrag(e: PointerEvent, shelfItem: HTMLElement, shapeIndex: num
   moveFloating(e.clientX, e.clientY);
   playClick(420);
 
+  let dropped = false;
+
   function onMove(ev: Event): void {
     const pe = ev as PointerEvent;
     moveFloating(pe.clientX, pe.clientY);
   }
 
   function onUp(ev: Event): void {
+    if (dropped) return;
+    dropped = true;
     const pe = ev as PointerEvent;
     try {
       shelfItem.releasePointerCapture(pe.pointerId);

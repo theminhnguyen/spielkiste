@@ -1,11 +1,13 @@
 import './style.css';
 import { unlockAudio, playTone, isAudioReady } from './audio';
-import { renderElternbereich } from './eltern';
+import { renderElternbereich, loadSettings } from './eltern';
 import type { Toy } from './toys/types';
 import { brett } from './toys/brett';
 import { kleckse } from './toys/kleckse';
 import { malen } from './toys/malen';
 import { steine } from './toys/steine';
+
+loadSettings();
 
 const toys: Toy[] = [brett, kleckse, malen, steine];
 

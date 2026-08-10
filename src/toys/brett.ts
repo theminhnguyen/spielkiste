@@ -57,7 +57,7 @@ function mount(container: HTMLElement): void {
   cleanup = [];
   sliderTone = null;
   windmillTimers = [];
-  windmillRotation = state.knobStep * 45;
+  windmillRotation = 0;
 
   container.innerHTML = `
     <div class="brett-stage">

@@ -59,7 +59,7 @@ function mount(container: HTMLElement): void {
     <div class="kleckse-stage" id="kleckseStage">
       ${BLOB_DEFS.map(
         (b) => `
-        <div class="klecks" data-id="${b.id}" style="--blob-color:${b.color}; left:${b.xPct}%; top:${b.yPct}%; width:${b.radiusPx * 2}px; height:${b.radiusPx * 2}px;">
+        <div class="klecks" data-id="${b.id}" style="--blob-color:${b.color}; width:${b.radiusPx * 2}px; height:${b.radiusPx * 2}px;">
           <div class="klecks-face">
             <div class="klecks-eyes">
               <div class="klecks-eye" style="animation-delay:${(b.id * 0.9 + 1).toFixed(2)}s"></div>
@@ -85,7 +85,23 @@ function mount(container: HTMLElement): void {
     lastT: 0,
   }));
 
-  blobs.forEach((blob) => setupBlob(blob));
+  blobs.forEach((blob) => {
+    applyTransform(blob);
+    setupBlob(blob);
+  });
+}
+
+/**
+ * Positioniert den Klecks ausschließlich über `transform` (kein left/top) —
+ * damit löst jede Bewegung nur Compositing aus, kein Layout-Reflow. Wichtig
+ * beim Multi-Touch-Patschen, wo mehrere Finger gleichzeitig ziehen können.
+ */
+function applyTransform(blob: BlobRuntime, scaleX = 1, scaleY = 1): void {
+  if (!stageEl) return;
+  const rect = stageEl.getBoundingClientRect();
+  const x = (blob.xPct / 100) * rect.width - blob.def.radiusPx;
+  const y = (blob.yPct / 100) * rect.height - blob.def.radiusPx;
+  blob.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`;
 }
 
 function setupBlob(blob: BlobRuntime): void {
@@ -109,7 +125,7 @@ function setupBlob(blob: BlobRuntime): void {
       duration: 0.35,
       gain: 0.35,
     });
-    squish(el, 1.18);
+    squish(blob, 1.18);
   });
 
   on(el, 'pointermove', (e) => {
@@ -126,9 +142,7 @@ function setupBlob(blob: BlobRuntime): void {
 
     blob.xPct = clamp(((pe.clientX - rect.left) / rect.width) * 100, 6, 94);
     blob.yPct = clamp(((pe.clientY - rect.top) / rect.height) * 100, 8, 92);
-    el.style.left = `${blob.xPct}%`;
-    el.style.top = `${blob.yPct}%`;
-    applyJelly(el, vx, vy);
+    applyJelly(blob, vx, vy);
     checkCollisions(blob);
   });
 
@@ -144,26 +158,26 @@ function setupBlob(blob: BlobRuntime): void {
         /* bereits freigegeben */
       }
     }
-    el.style.transform = 'translate(-50%, -50%) scale(1, 1)';
+    applyTransform(blob, 1, 1);
   }
 
   on(el, 'pointerup', endDrag);
   on(el, 'pointercancel', endDrag);
 }
 
-function applyJelly(el: HTMLElement, vx: number, vy: number): void {
+function applyJelly(blob: BlobRuntime, vx: number, vy: number): void {
   const speed = Math.min(Math.hypot(vx, vy) * 6, 0.28);
   const angle = Math.atan2(vy, vx);
   const stretchX = 1 + speed * Math.abs(Math.cos(angle));
   const stretchY = 1 - speed * Math.abs(Math.cos(angle)) * 0.6 + speed * Math.abs(Math.sin(angle)) * 0.1;
-  el.style.transform = `translate(-50%, -50%) scale(${stretchX.toFixed(3)}, ${stretchY.toFixed(3)})`;
+  applyTransform(blob, stretchX, stretchY);
 }
 
-function squish(el: HTMLElement, amount: number): void {
-  el.style.transform = `translate(-50%, -50%) scale(${amount}, ${amount})`;
+function squish(blob: BlobRuntime, amount: number): void {
+  applyTransform(blob, amount, amount);
   window.setTimeout(() => {
-    if (!el.classList.contains('grabbed')) {
-      el.style.transform = 'translate(-50%, -50%) scale(1, 1)';
+    if (!blob.el.classList.contains('grabbed')) {
+      applyTransform(blob, 1, 1);
     }
   }, 160);
 }
@@ -199,7 +213,7 @@ function checkCollisions(moved: BlobRuntime): void {
           duration: 0.25,
           gain: 0.22,
         });
-        squish(other.el, 1.1);
+        squish(other, 1.1);
       }
     } else {
       collidingPairs.delete(key);
