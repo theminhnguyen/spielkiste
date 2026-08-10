@@ -1141,3 +1141,114 @@ body {
   z-index: 10;
   opacity: 0.92;
 }
+
+/* ---------- Seifenblasen ---------- */
+
+.blasen-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #dff1f6 0%, #eef8fa 55%, #f6fbfc 100%);
+}
+
+.blasen-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.blase {
+  position: absolute;
+  bottom: -120px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.25) 26%, transparent 42%),
+    var(--tint);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 14px rgba(90, 130, 150, 0.14), inset 0 -6px 12px rgba(255, 255, 255, 0.35);
+  /* Nur transform/opacity → der Browser promotet die Blase für die Dauer der
+     Animation ohnehin selbst. Ein dauerhaftes will-change würde bei bis zu
+     14 gleichzeitigen Blasen nur unnötig GPU-Speicher belegen. */
+  animation: blase-auf linear forwards;
+  touch-action: none;
+  cursor: pointer;
+}
+
+@keyframes blase-auf {
+  0% { transform: translate3d(0, 0, 0) scale(0.7); opacity: 0; }
+  8% { opacity: 1; }
+  50% { transform: translate3d(var(--drift), -55vh, 0) scale(1); }
+  92% { opacity: 1; }
+  100% { transform: translate3d(calc(var(--drift) * -0.6), -115vh, 0) scale(1.05); opacity: 0; }
+}
+
+.blase-glanz {
+  position: absolute;
+  top: 16%;
+  left: 20%;
+  width: 22%;
+  height: 16%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  transform: rotate(-24deg);
+}
+
+/* Zerplatzen: kurz aufblähen, dann verschwinden */
+.blase.platzt {
+  animation: blase-platzt 300ms ease-out forwards;
+}
+
+@keyframes blase-platzt {
+  0% { transform: scale(1); opacity: 0.95; }
+  40% { transform: scale(1.35); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Pustestab */
+
+.blasen-wand {
+  position: absolute;
+  left: calc(var(--safe-l) + 6%);
+  bottom: calc(var(--safe-b) + 18px);
+  width: 96px;
+  height: 130px;
+  cursor: pointer;
+  touch-action: none;
+  transform-origin: 50% 90%;
+}
+
+.blasen-wand.puff {
+  animation: wand-puff 620ms ease-out;
+}
+
+@keyframes wand-puff {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-16deg); }
+  60% { transform: rotate(8deg); }
+}
+
+.wand-ring {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 62px;
+  height: 62px;
+  margin-left: -31px;
+  border-radius: 50%;
+  border: 7px solid #c8b6e0;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.wand-stick {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  width: 10px;
+  height: 74px;
+  margin-left: -5px;
+  border-radius: 5px;
+  background: #b49bd4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blase { animation-duration: 26s !important; }
+}

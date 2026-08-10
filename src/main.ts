@@ -6,10 +6,11 @@ import { brett } from './toys/brett';
 import { kleckse } from './toys/kleckse';
 import { malen } from './toys/malen';
 import { steine } from './toys/steine';
+import { blasen } from './toys/blasen';
 
 loadSettings();
 
-const toys: Toy[] = [brett, kleckse, malen, steine];
+const toys: Toy[] = [brett, kleckse, malen, steine, blasen];
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
