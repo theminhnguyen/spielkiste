@@ -269,3 +269,278 @@ body {
   font-size: 14px;
   cursor: pointer;
 }
+
+/* ---------- Fummelbrett ---------- */
+
+.brett-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdf6ea;
+  padding: 20px;
+}
+
+.brett-board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 2.4vw, 26px);
+  max-width: 920px;
+}
+
+.brett-mod {
+  position: relative;
+  width: clamp(130px, 15vw, 168px);
+  height: clamp(130px, 15vw, 168px);
+  background: #fffaf2;
+  border-radius: 24px;
+  box-shadow: 0 8px 18px rgba(120, 90, 50, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* Kippschalter */
+
+.brett-switch {
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lamp-glow {
+  fill: transparent;
+  transition: fill 250ms ease-out;
+}
+
+.lamp-bulb {
+  fill: #d8cba0;
+  transition: fill 250ms ease-out, filter 250ms ease-out;
+}
+
+.brett-switch.on .lamp-glow {
+  fill: rgba(255, 215, 94, 0.35);
+}
+
+.brett-switch.on .lamp-bulb {
+  fill: #ffd75e;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 94, 0.85));
+}
+
+.switch-track {
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  background: #e6dcc8;
+  position: relative;
+}
+
+.switch-lever {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fffaf2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 200ms ease-out;
+}
+
+.brett-switch.on .switch-lever {
+  transform: translateX(32px);
+}
+
+/* Drehknopf */
+
+.knob-dial {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: #fffaf2;
+  border: 5px solid #e0a458;
+  transition: transform 120ms ease-out;
+}
+
+.knob-pointer {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 6px;
+  height: 30px;
+  border-radius: 3px;
+  background: #e0a458;
+  transform: translateX(-50%);
+}
+
+/* Drucktasten */
+
+.brett-buttons {
+  gap: 10px;
+}
+
+.press-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--btn-color);
+  box-shadow: 0 4px 10px rgba(120, 90, 50, 0.18);
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.press-btn.pressed {
+  transform: scale(0.88);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--btn-color) 35%, transparent);
+}
+
+/* Schieberegler */
+
+.slider-track {
+  position: relative;
+  width: 140px;
+  height: 16px;
+  border-radius: 8px;
+  background: #e6dcc8;
+}
+
+.slider-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 8px;
+  background: #7ea3c9;
+}
+
+.slider-handle {
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fffaf2;
+  border: 4px solid #7ea3c9;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Reißverschluss */
+
+.zipper-track {
+  position: relative;
+  width: 70px;
+  height: 130px;
+}
+
+.zipper-gap {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: #6b5d4a;
+}
+
+.zipper-flap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background: #f3e6cf;
+  border: 2px solid #cbb98a;
+  transition: transform 300ms ease-out;
+}
+
+.zipper-flap-left {
+  left: 0;
+  border-radius: 14px 0 0 14px;
+}
+
+.zipper-flap-right {
+  right: 0;
+  border-radius: 0 14px 14px 0;
+}
+
+.brett-zipper.open .zipper-flap-left {
+  transform: translateX(-16px) rotate(-4deg);
+}
+
+.brett-zipper.open .zipper-flap-right {
+  transform: translateX(16px) rotate(4deg);
+}
+
+.zipper-pull {
+  position: absolute;
+  left: 50%;
+  top: 0%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #8a7255;
+  border: 3px solid #fffaf2;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  transition: top 200ms ease-out;
+}
+
+/* Windrädchen */
+
+.windmill-blades {
+  transform-origin: 50% 50%;
+}
+
+.windmill-hub {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fffaf2;
+  border: 3px solid #8a7255;
+}
+
+/* Klappe/Türchen */
+
+.brett-door {
+  perspective: 420px;
+}
+
+.door-frame {
+  position: relative;
+  width: 104px;
+  height: 104px;
+}
+
+.door-animal {
+  position: absolute;
+  inset: 6px;
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.door-animal svg {
+  width: 80%;
+  height: 80%;
+}
+
+.door-panel {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: #e0a458;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.3);
+  transform-origin: left center;
+  transition: transform 500ms ease-out;
+}
+
+.brett-door.open .door-panel {
+  transform: rotateY(-115deg);
+}
