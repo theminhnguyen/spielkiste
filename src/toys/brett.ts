@@ -176,7 +176,11 @@ function setupKnob(root: HTMLElement): void {
     const pe = e as PointerEvent;
     pe.preventDefault();
     dragging = true;
-    mod.setPointerCapture(pe.pointerId);
+    try {
+      mod.setPointerCapture(pe.pointerId);
+    } catch {
+      /* Pointer bereits inaktiv — Drehen funktioniert trotzdem über normales Bubbling */
+    }
     updateFromPointer(pe.clientX, pe.clientY);
   });
 
@@ -262,7 +266,11 @@ function setupSlider(root: HTMLElement): void {
     const pe = e as PointerEvent;
     pe.preventDefault();
     dragging = true;
-    mod.setPointerCapture(pe.pointerId);
+    try {
+      mod.setPointerCapture(pe.pointerId);
+    } catch {
+      /* Pointer bereits inaktiv — Ziehen funktioniert trotzdem über normales Bubbling */
+    }
     state.sliderValue = valueFromX(pe.clientX);
     applySliderVisual(handle, fill);
     sliderTone = startSustainedTone(freqFromValue(state.sliderValue));
@@ -318,7 +326,11 @@ function setupZipper(root: HTMLElement): void {
     dragging = true;
     moved = 0;
     startY = pe.clientY;
-    mod.setPointerCapture(pe.pointerId);
+    try {
+      mod.setPointerCapture(pe.pointerId);
+    } catch {
+      /* Pointer bereits inaktiv — Ziehen funktioniert trotzdem über normales Bubbling */
+    }
   });
 
   on(mod, 'pointermove', (e) => {
