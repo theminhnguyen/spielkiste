@@ -4,8 +4,10 @@ Eine ruhige, werbefreie Spiel-App für 2-Jährige — inspiriert von den Design-
 von Pok Pok (Montessori, low-stimulation, open-ended play), aber komplett eigenständig
 umgesetzt mit eigenen Grafiken und Sounds.
 
-**Status: Planungsphase** — noch kein Code. Die Umsetzung erfolgt nach
-[docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md).
+**Status: Im Bau** — Gerüst & Deploy-Pipeline stehen, die Spielzeuge folgen Phase für
+Phase nach [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md).
+
+**Live:** https://theminhnguyen.github.io/spielkiste/
 
 ## Eckdaten
 

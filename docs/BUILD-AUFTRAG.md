@@ -27,22 +27,26 @@ Lies vor Beginn: `CLAUDE.md` (Projektregeln) und `docs/PLAN.md` (was gebaut wird
 
 ## Phasen
 
-### P0 — Gerüst & Deploy-Pipeline
-- Vite-Projekt (Template `vanilla-ts`) im Projektordner anlegen, `vite-plugin-pwa`
-  einrichten, `.gitignore` (node_modules, dist), `vite.config.ts` mit
-  `base: '/spielkiste/'`.
-- `.claude/launch.json` für den Dev-Server anlegen (npm run dev, Port 5173).
-- Das öffentliche GitHub-Repo existiert bereits: https://github.com/theminhnguyen/spielkiste
-  (in der Planungs-Session angelegt) — einfach weiter auf `main` pushen.
-- Deploy-Skript `npm run deploy`: baut und pusht `dist/` auf Branch `gh-pages`
-  (z. B. via `gh-pages`-Paket). GitHub Pages auf Branch `gh-pages` stellen
-  (`gh api`). **Kein GitHub-Actions-Workflow.**
+### P0 — Gerüst & Deploy-Pipeline ✅ erledigt
+- Projekt liegt unter `~/Downloads/outputs/spielkiste` (verschoben aus
+  `~/Downloads/spielkiste`, weil der Preview-Server-Spawn nur im `outputs`-Baum
+  zuverlässig funktioniert — siehe Hinweis in CLAUDE.md).
+- Vite-Projekt (vanilla-ts-Basis) angelegt, `vite-plugin-pwa` eingerichtet,
+  `.gitignore`, `vite.config.ts` mit `base: '/spielkiste/'`.
+- Dev-Server-Config liegt zentral in `~/Downloads/outputs/.claude/launch.json`
+  unter dem Namen `spielkiste-dev` (nicht projektlokal — dort wird sie nicht
+  gefunden).
+- GitHub-Repo: https://github.com/theminhnguyen/spielkiste — `main` gepusht.
+- Deploy-Skript `npm run deploy` (Paket `gh-pages`) eingerichtet und einmal
+  ausgeführt; GitHub Pages läuft automatisch auf Branch `gh-pages`. **Kein
+  GitHub-Actions-Workflow.**
+- Eigene SVG-Icon-Grafik (`public/icons/icon.svg`) gebaut, mit macOS-Bordmittel
+  `sips` (kein externes Tool, keine Abhängigkeit) zu PNG 180/192/512 gerendert.
 - Platzhalterseite mit sichtbarer Version (package.json-Version + Commit-Hash,
-  zur Build-Zeit injiziert).
-- **Akzeptanz:** Dev-Server läuft über Preview-Tools, Konsole leer. `npm run build`
-  fehlerfrei. Live-URL erreichbar (Browser-Tab auf die Pages-URL), Manifest lädt,
-  Service Worker registriert sich im Prod-Build (per `npm run preview` prüfen —
-  im Dev-Modus ist der SW aus, das ist normal).
+  zur Build-Zeit per `vite.config.ts`-`define` injiziert).
+- **Akzeptanz — bestätigt:** Dev-Server läuft (Konsole leer), `npm run build`
+  fehlerfrei, `npm run preview` zeigt aktiven Service Worker + ladendes Manifest
+  (3 Icons). Live-URL: https://theminhnguyen.github.io/spielkiste/
 
 ### P1 — App-Shell: Spielzimmer & Navigation
 - Vollbild-Layout ohne Scrollen, funktioniert quer und hochkant.

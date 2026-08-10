@@ -33,3 +33,15 @@ npm run build    # Produktions-Build nach dist/
 npm run preview  # Produktions-Build lokal testen (Service Worker aktiv)
 npm run deploy   # dist/ auf Branch gh-pages veröffentlichen
 ```
+
+## Hinweis: Projektpfad & Preview-Server
+
+Das Projekt liegt unter `~/Downloads/outputs/spielkiste` (nicht direkt `~/Downloads/spielkiste`),
+weil der Preview-Server-Spawn-Mechanismus (`preview_start` mit `name`) nur im
+`outputs`-Baum sicher funktioniert. Falls `preview_start {name: "spielkiste-dev"}`
+mit einem `getcwd`/`EPERM`-Fehler scheitert (Sandbox-Problem, betraf in der
+Build-Session auch andere, längst funktionierende Configs): Workaround ist, den
+Dev-Server selbst per `Bash` im Hintergrund zu starten
+(`nohup npm run dev -- --port 5173 --strictPort > /tmp/spielkiste-dev.log 2>&1 &`)
+und dann `preview_start` mit `{url: "http://localhost:5173/spielkiste/"}` statt
+`{name: ...}` aufzurufen, um nur den Browser-Tab zu öffnen.
