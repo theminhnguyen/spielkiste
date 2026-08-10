@@ -4,10 +4,14 @@ Eine ruhige, werbefreie Spiel-App für 2-Jährige — inspiriert von den Design-
 von Pok Pok (Montessori, low-stimulation, open-ended play), aber komplett eigenständig
 umgesetzt mit eigenen Grafiken und Sounds.
 
-**Status: Im Bau** — Gerüst & Deploy-Pipeline stehen, die Spielzeuge folgen Phase für
-Phase nach [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md).
+**Status: Fertig (v1.0.0)** — alle Phasen aus [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md)
+abgeschlossen. Spielzimmer + 4 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen,
+Stapelsteine), komplett offlinefähig, Zustand bleibt gespeichert.
 
 **Live:** https://theminhnguyen.github.io/spielkiste/
+
+**Einrichtung am iPad:** siehe [ELTERN-ANLEITUNG.md](ELTERN-ANLEITUNG.md)
+(Installation, Flugmodus-Test, Geführter Zugriff).
 
 ## Eckdaten
 
@@ -21,6 +25,7 @@ Phase nach [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md).
 
 ## Dokumente
 
+- [ELTERN-ANLEITUNG.md](ELTERN-ANLEITUNG.md) — Installation am iPad, Flugmodus-Test, Geführter Zugriff
 - [docs/RECHERCHE-POKPOK.md](docs/RECHERCHE-POKPOK.md) — Wie Pok Pok funktioniert (Recherche mit Quellen)
 - [docs/PLAN.md](docs/PLAN.md) — Produkt- und Technikplan für den Nachbau
 - [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md) — Arbeitsauftrag für die Build-Session (Sonnet 5): Phasen, Tests, Definition of Done
