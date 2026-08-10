@@ -18,10 +18,16 @@ interface BrettState {
   sliderValue: number;
   zipperOpen: boolean;
   doorIndex: number;
+  curtainOpen: boolean;
+  veloOpen: boolean;
+  beads: number[];
+  kaleidoStep: number;
 }
 
 const STATE_KEY = 'brett';
-const STATE_VERSION = 1;
+// v2: sieben zusätzliche Module (Vorhang, Klett, Perlen, Kaleidoskop …).
+// Ältere v1-Stände fallen über state.ts still auf den Startzustand zurück.
+const STATE_VERSION = 2;
 
 const defaultState: BrettState = {
   switchOn: false,
@@ -29,6 +35,10 @@ const defaultState: BrettState = {
   sliderValue: 0.3,
   zipperOpen: false,
   doorIndex: 0,
+  curtainOpen: false,
+  veloOpen: false,
+  beads: [0.08, 0.28, 0.48, 0.68],
+  kaleidoStep: 0,
 };
 
 const ANIMALS = [
@@ -118,6 +128,56 @@ function mount(container: HTMLElement): void {
             <div class="door-panel"></div>
           </div>
         </div>
+
+        <div class="brett-mod brett-gears" data-mod="gears">
+          <svg class="gear g-big" viewBox="0 0 100 100" width="66" height="66">${gearSvg('#7fb99e')}</svg>
+          <svg class="gear g-small" viewBox="0 0 100 100" width="44" height="44">${gearSvg('#e0a458')}</svg>
+        </div>
+
+        <div class="brett-mod brett-bell" data-mod="bell">
+          <div class="bell-body">
+            <svg viewBox="0 0 100 100" width="58" height="58">
+              <path d="M50 14 C30 14 26 34 26 52 L20 68 H80 L74 52 C74 34 70 14 50 14 Z" fill="#f4c86b" stroke="#c99a3c" stroke-width="3"/>
+              <circle cx="50" cy="78" r="7" fill="#c99a3c"/>
+              <circle cx="50" cy="11" r="5" fill="#c99a3c"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="brett-mod brett-curtain" data-mod="curtain">
+          <div class="curtain-window">
+            <div class="curtain-scene"><span class="curtain-sun"></span><span class="curtain-hill"></span></div>
+            <div class="curtain-cloth left"></div>
+            <div class="curtain-cloth right"></div>
+          </div>
+        </div>
+
+        <div class="brett-mod brett-crank" data-mod="crank">
+          <div class="crank-box">
+            <div class="crank-pop">${ANIMALS[0]}</div>
+          </div>
+          <div class="crank-handle"><span></span></div>
+        </div>
+
+        <div class="brett-mod brett-kaleido" data-mod="kaleido">
+          <svg class="kaleido-disc" viewBox="-50 -50 100 100" width="86" height="86">
+            <circle cx="0" cy="0" r="46" fill="#fdf6ea" stroke="#c896d8" stroke-width="3"/>
+            <g class="kaleido-petals"></g>
+          </svg>
+        </div>
+
+        <div class="brett-mod brett-velcro" data-mod="velcro">
+          <div class="velcro-base">
+            <div class="velcro-hidden"></div>
+            <div class="velcro-strap"><i></i><i></i><i></i></div>
+          </div>
+        </div>
+
+        <div class="brett-mod brett-beads" data-mod="beads">
+          <div class="beads-wire">
+            ${state.beads.map((_, i) => `<span class="bead b${i}" data-bead="${i}"></span>`).join('')}
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -129,6 +189,21 @@ function mount(container: HTMLElement): void {
   setupZipper(container);
   setupWindmill(container);
   setupDoor(container);
+  setupGears(container);
+  setupBell(container);
+  setupCurtain(container);
+  setupCrank(container);
+  setupKaleido(container);
+  setupVelcro(container);
+  setupBeads(container);
+}
+
+function gearSvg(color: string): string {
+  const teeth = Array.from({ length: 8 }, (_, i) => {
+    const a = (i * 360) / 8;
+    return `<rect x="44" y="2" width="12" height="18" rx="3" fill="${color}" transform="rotate(${a} 50 50)"/>`;
+  }).join('');
+  return `${teeth}<circle cx="50" cy="50" r="34" fill="${color}"/><circle cx="50" cy="50" r="11" fill="#fffaf2"/>`;
 }
 
 function setupSwitch(root: HTMLElement): void {
@@ -432,6 +507,314 @@ function setupDoor(root: HTMLElement): void {
 
 function applyDoorVisual(mod: HTMLElement): void {
   mod.classList.remove('open');
+}
+
+/* ---------- Zahnräder: eines ziehen, beide drehen mit ---------- */
+
+function setupGears(root: HTMLElement): void {
+  const mod = root.querySelector<HTMLElement>('.brett-gears')!;
+  const big = mod.querySelector<HTMLElement>('.g-big')!;
+  const small = mod.querySelector<HTMLElement>('.g-small')!;
+  let dragging = false;
+  let lastAngle = 0;
+  let rotation = 0;
+  let lastTickAt = 0;
+
+  function angleAt(x: number, y: number): number {
+    const r = mod.getBoundingClientRect();
+    return (Math.atan2(y - (r.top + r.height / 2), x - (r.left + r.width / 2)) * 180) / Math.PI;
+  }
+
+  function render(): void {
+    big.style.transform = `rotate(${rotation}deg)`;
+    // Gegenläufig und schneller — so wirkt der Zahneingriff plausibel.
+    small.style.transform = `rotate(${-rotation * 1.5}deg)`;
+  }
+  render();
+
+  on(mod, 'pointerdown', (e) => {
+    const pe = e as PointerEvent;
+    pe.preventDefault();
+    dragging = true;
+    lastAngle = angleAt(pe.clientX, pe.clientY);
+    try {
+      mod.setPointerCapture(pe.pointerId);
+    } catch {
+      /* Pointer bereits inaktiv */
+    }
+  });
+
+  on(mod, 'pointermove', (e) => {
+    if (!dragging) return;
+    const pe = e as PointerEvent;
+    const a = angleAt(pe.clientX, pe.clientY);
+    let delta = a - lastAngle;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    lastAngle = a;
+    rotation += delta;
+    render();
+
+    const now = performance.now();
+    if (Math.abs(delta) > 6 && now - lastTickAt > 90) {
+      lastTickAt = now;
+      playTone({ freq: 320, duration: 0.02, attack: 0.002, release: 0.05, type: 'square', gain: 0.1 });
+    }
+  });
+
+  function endDrag(e: Event): void {
+    if (!dragging) return;
+    dragging = false;
+    const pe = e as PointerEvent;
+    try {
+      mod.releasePointerCapture(pe.pointerId);
+    } catch {
+      /* bereits freigegeben */
+    }
+  }
+  on(mod, 'pointerup', endDrag);
+  on(mod, 'pointercancel', endDrag);
+}
+
+/* ---------- Klingel ---------- */
+
+function setupBell(root: HTMLElement): void {
+  const mod = root.querySelector<HTMLElement>('.brett-bell')!;
+  const body = mod.querySelector<HTMLElement>('.bell-body')!;
+
+  on(mod, 'pointerdown', (e) => {
+    e.preventDefault();
+    body.classList.remove('ring');
+    void body.offsetWidth;
+    body.classList.add('ring');
+    // Zwei Teiltöne übereinander ergeben den glockigen Klang.
+    playTone({ freq: 1046.5, duration: 0.5, attack: 0.004, release: 0.9, type: 'sine', gain: 0.22 });
+    playTone({ freq: 1567.98, duration: 0.35, attack: 0.004, release: 0.7, type: 'sine', gain: 0.1 });
+  });
+}
+
+/* ---------- Vorhang ---------- */
+
+function setupCurtain(root: HTMLElement): void {
+  const mod = root.querySelector<HTMLElement>('.brett-curtain')!;
+  applyCurtainVisual(mod);
+
+  on(mod, 'pointerdown', (e) => {
+    e.preventDefault();
+    state.curtainOpen = !state.curtainOpen;
+    applyCurtainVisual(mod);
+    playWhoosh();
+    persist();
+  });
+}
+
+function applyCurtainVisual(mod: HTMLElement): void {
+  mod.classList.toggle('open', state.curtainOpen);
+}
+
+/* ---------- Kurbel: drehen bis das Tierchen herausspringt ---------- */
+
+function setupCrank(root: HTMLElement): void {
+  const mod = root.querySelector<HTMLElement>('.brett-crank')!;
+  const handle = mod.querySelector<HTMLElement>('.crank-handle')!;
+  const pop = mod.querySelector<HTMLElement>('.crank-pop')!;
+  let dragging = false;
+  let lastAngle = 0;
+  let rotation = 0;
+  let turned = 0;
+  let popped = false;
+  let lastTickAt = 0;
+
+  function angleAt(x: number, y: number): number {
+    const r = handle.getBoundingClientRect();
+    return (Math.atan2(y - (r.top + r.height / 2), x - (r.left + r.width / 2)) * 180) / Math.PI;
+  }
+
+  on(mod, 'pointerdown', (e) => {
+    const pe = e as PointerEvent;
+    pe.preventDefault();
+    if (popped) {
+      // Zweite Berührung schließt die Kiste wieder — beliebig oft wiederholbar.
+      popped = false;
+      turned = 0;
+      mod.classList.remove('popped');
+      return;
+    }
+    dragging = true;
+    lastAngle = angleAt(pe.clientX, pe.clientY);
+    try {
+      mod.setPointerCapture(pe.pointerId);
+    } catch {
+      /* Pointer bereits inaktiv */
+    }
+  });
+
+  on(mod, 'pointermove', (e) => {
+    if (!dragging || popped) return;
+    const pe = e as PointerEvent;
+    const a = angleAt(pe.clientX, pe.clientY);
+    let delta = a - lastAngle;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    lastAngle = a;
+    rotation += delta;
+    turned += Math.abs(delta);
+    handle.style.transform = `rotate(${rotation}deg)`;
+
+    const now = performance.now();
+    if (now - lastTickAt > 120) {
+      lastTickAt = now;
+      const step = Math.floor(turned / 45) % PENTATONIC_HZ.length;
+      playTone({ freq: PENTATONIC_HZ[step], duration: 0.05, attack: 0.003, release: 0.1, type: 'triangle', gain: 0.16 });
+    }
+
+    if (turned > 540) {
+      popped = true;
+      dragging = false;
+      pop.innerHTML = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+      mod.classList.add('popped');
+      playTone({ freq: 880, duration: 0.18, attack: 0.005, release: 0.3, type: 'sine', gain: 0.3 });
+    }
+  });
+
+  function endDrag(e: Event): void {
+    if (!dragging) return;
+    dragging = false;
+    const pe = e as PointerEvent;
+    try {
+      mod.releasePointerCapture(pe.pointerId);
+    } catch {
+      /* bereits freigegeben */
+    }
+  }
+  on(mod, 'pointerup', endDrag);
+  on(mod, 'pointercancel', endDrag);
+}
+
+/* ---------- Kaleidoskop ---------- */
+
+const KALEIDO_COLORS = ['#e88a9a', '#7fb99e', '#f4c86b', '#7ea3c9', '#e0a458', '#c896d8'];
+
+function setupKaleido(root: HTMLElement): void {
+  const mod = root.querySelector<HTMLElement>('.brett-kaleido')!;
+  const disc = mod.querySelector<HTMLElement>('.kaleido-disc')!;
+  const petals = mod.querySelector<SVGGElement>('.kaleido-petals')!;
+  renderKaleido(petals);
+  disc.style.transform = `rotate(${state.kaleidoStep * 30}deg)`;
+
+  on(mod, 'pointerdown', (e) => {
+    e.preventDefault();
+    state.kaleidoStep += 1;
+    disc.style.transform = `rotate(${state.kaleidoStep * 30}deg)`;
+    renderKaleido(petals);
+    playTone({
+      freq: PENTATONIC_HZ[state.kaleidoStep % PENTATONIC_HZ.length],
+      duration: 0.25,
+      attack: 0.01,
+      release: 0.4,
+      type: 'sine',
+      gain: 0.2,
+    });
+    persist();
+  });
+}
+
+/** Sechsfach gespiegelte Blütenblätter — jede Drehung würfelt neue Farben. */
+function renderKaleido(petals: SVGGElement): void {
+  const seed = state.kaleidoStep;
+  let out = '';
+  for (let i = 0; i < 6; i++) {
+    const c = KALEIDO_COLORS[(seed + i) % KALEIDO_COLORS.length];
+    const c2 = KALEIDO_COLORS[(seed * 2 + i + 3) % KALEIDO_COLORS.length];
+    out += `<g transform="rotate(${i * 60})">
+      <ellipse cx="0" cy="-24" rx="9" ry="16" fill="${c}" opacity="0.85"/>
+      <circle cx="0" cy="-38" r="5" fill="${c2}"/>
+    </g>`;
+  }
+  petals.innerHTML = out;
+}
+
+/* ---------- Klettverschluss ---------- */
+
+function setupVelcro(root: HTMLElement): void {
+  const mod = root.querySelector<HTMLElement>('.brett-velcro')!;
+  applyVelcroVisual(mod);
+
+  on(mod, 'pointerdown', (e) => {
+    e.preventDefault();
+    state.veloOpen = !state.veloOpen;
+    applyVelcroVisual(mod);
+    playZipSound(state.veloOpen);
+    persist();
+  });
+}
+
+function applyVelcroVisual(mod: HTMLElement): void {
+  mod.classList.toggle('open', state.veloOpen);
+}
+
+/* ---------- Perlenschieber ---------- */
+
+function setupBeads(root: HTMLElement): void {
+  const mod = root.querySelector<HTMLElement>('.brett-beads')!;
+  const wire = mod.querySelector<HTMLElement>('.beads-wire')!;
+  const beadEls = [...mod.querySelectorAll<HTMLElement>('.bead')];
+
+  beadEls.forEach((el, i) => {
+    el.style.left = `${state.beads[i] * 100}%`;
+  });
+
+  // Pro Finger ein Eintrag: mehrere Perlen lassen sich gleichzeitig schieben.
+  const active = new Map<number, number>();
+
+  on(wire, 'pointerdown', (e) => {
+    const pe = e as PointerEvent;
+    const target = (pe.target as HTMLElement).closest<HTMLElement>('.bead');
+    if (!target) return;
+    pe.preventDefault();
+    const idx = Number(target.dataset.bead);
+    active.set(pe.pointerId, idx);
+    try {
+      wire.setPointerCapture(pe.pointerId);
+    } catch {
+      /* Pointer bereits inaktiv */
+    }
+  });
+
+  on(wire, 'pointermove', (e) => {
+    const pe = e as PointerEvent;
+    const idx = active.get(pe.pointerId);
+    if (idx === undefined) return;
+    const r = wire.getBoundingClientRect();
+    const v = Math.max(0.02, Math.min(0.94, (pe.clientX - r.left) / r.width));
+    const prev = state.beads[idx];
+    state.beads[idx] = v;
+    beadEls[idx].style.left = `${v * 100}%`;
+    if (Math.abs(v - prev) > 0.04) {
+      playTone({
+        freq: PENTATONIC_HZ[idx % PENTATONIC_HZ.length] * 2,
+        duration: 0.03,
+        attack: 0.002,
+        release: 0.07,
+        type: 'triangle',
+        gain: 0.12,
+      });
+    }
+  });
+
+  function endDrag(e: Event): void {
+    const pe = e as PointerEvent;
+    if (!active.has(pe.pointerId)) return;
+    active.delete(pe.pointerId);
+    try {
+      wire.releasePointerCapture(pe.pointerId);
+    } catch {
+      /* bereits freigegeben */
+    }
+    persist();
+  }
+  on(wire, 'pointerup', endDrag);
+  on(wire, 'pointercancel', endDrag);
 }
 
 function unmount(): void {

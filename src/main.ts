@@ -63,10 +63,12 @@ let isAnimating = false;
 
 function renderTiles(): void {
   tilesEl.innerHTML = '';
-  for (const toy of toys) {
+  toys.forEach((toy, i) => {
     const btn = document.createElement('button');
     btn.className = 'tile';
     btn.style.setProperty('--accent', toy.accent);
+    // Versetzter Atem-Rhythmus, damit die Kacheln nicht im Gleichtakt pulsieren.
+    btn.style.animationDelay = `${((i * 0.7) % 4.5).toFixed(2)}s`;
     btn.innerHTML = toy.tileIcon;
     btn.setAttribute('aria-hidden', 'true');
     btn.addEventListener('pointerdown', (e) => {
@@ -74,7 +76,7 @@ function renderTiles(): void {
       openToy(toy);
     });
     tilesEl.appendChild(btn);
-  }
+  });
 }
 
 function openToy(toy: Toy): void {
