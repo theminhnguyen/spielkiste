@@ -1,4 +1,4 @@
-import { getVolume, setVolume, playClick } from './audio';
+import { getVolume, setVolume, playClick, playTone, getAudioDebugInfo, unlockAudio } from './audio';
 import { loadState, saveState, clearAllState } from './state';
 
 interface SettingsState {
@@ -28,6 +28,11 @@ export function renderElternbereich(container: HTMLElement): void {
         <input type="range" min="0" max="100" value="${Math.round(getVolume() * 100)}" class="eltern-volume" />
       </label>
 
+      <div class="eltern-audio-diag">
+        <button class="eltern-test-ton">Test-Ton abspielen</button>
+        <p class="eltern-audio-status"></p>
+      </div>
+
       <div class="eltern-reset-zone">
         <button class="eltern-reset-btn">Alles zurücksetzen</button>
         <div class="eltern-reset-confirm" hidden>
@@ -51,6 +56,21 @@ export function renderElternbereich(container: HTMLElement): void {
   volumeInput.addEventListener('change', () => {
     persistVolume(Number(volumeInput.value) / 100);
     playClick(500);
+  });
+
+  const statusEl = container.querySelector<HTMLElement>('.eltern-audio-status')!;
+  function refreshAudioStatus(): void {
+    statusEl.textContent = getAudioDebugInfo();
+  }
+  refreshAudioStatus();
+  window.setTimeout(refreshAudioStatus, 400);
+
+  const testTonBtn = container.querySelector<HTMLButtonElement>('.eltern-test-ton')!;
+  testTonBtn.addEventListener('click', () => {
+    unlockAudio();
+    playTone({ freq: 523.25, duration: 0.3, attack: 0.01, release: 0.3, gain: 0.4 });
+    refreshAudioStatus();
+    window.setTimeout(refreshAudioStatus, 400);
   });
 
   const resetBtn = container.querySelector<HTMLButtonElement>('.eltern-reset-btn')!;

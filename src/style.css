@@ -286,6 +286,31 @@ body {
   accent-color: #e0a458;
 }
 
+.eltern-audio-diag {
+  margin: 18px 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f4e9d8;
+}
+
+.eltern-test-ton {
+  padding: 9px 16px;
+  border-radius: 12px;
+  border: 1px solid #7ea3c9;
+  background: #fffaf2;
+  color: #3d5a7a;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.eltern-audio-status {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b5d4a;
+  word-break: break-word;
+}
+
 .eltern-reset-zone {
   margin-top: 8px;
 }

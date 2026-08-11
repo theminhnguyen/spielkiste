@@ -2,16 +2,33 @@ let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let unlocked = false;
 let silentAudioEl: HTMLAudioElement | null = null;
+/** Letzter Fehler beim Freischalten — nur für die Diagnose im Elternbereich. */
+let lastError: string | null = null;
 
 function ensureContext(): AudioContext | null {
   if (ctx) return ctx;
-  const Ctor = window.AudioContext ?? (window as any).webkitAudioContext;
-  if (!Ctor) return null;
-  ctx = new Ctor();
-  masterGain = ctx.createGain();
-  masterGain.gain.value = getVolume();
-  masterGain.connect(ctx.destination);
-  return ctx;
+  try {
+    const Ctor = window.AudioContext ?? (window as any).webkitAudioContext;
+    if (!Ctor) {
+      lastError = 'AudioContext wird vom Browser nicht unterstützt';
+      return null;
+    }
+    ctx = new Ctor();
+    // Robuster als nur auf resume() zu warten: manche iOS-Versionen liefern
+    // den Zustandswechsel zuverlässiger über dieses Event als über das
+    // Promise von resume().
+    ctx.onstatechange = () => {
+      if (ctx?.state === 'running') unlocked = true;
+    };
+    masterGain = ctx.createGain();
+    masterGain.gain.value = getVolume();
+    masterGain.connect(ctx.destination);
+    return ctx;
+  } catch (err) {
+    lastError = err instanceof Error ? err.message : String(err);
+    ctx = null;
+    return null;
+  }
 }
 
 /**
@@ -53,37 +70,62 @@ export function unlockAudio(): void {
   // durchlief (auf iOS keine Seltenheit), blieb der Ton für die gesamte
   // Sitzung stumm, ganz gleich wie oft danach getippt wurde.
   if (unlocked) return;
-  const c = ensureContext();
-  if (!c) return;
-
-  if (c.state === 'running') {
-    unlocked = true;
-  } else if (c.state === 'suspended') {
-    c.resume()
-      .then(() => {
-        if (c.state === 'running') unlocked = true;
-      })
-      .catch(() => {
-        /* nächster Tipp versucht es erneut, siehe oben */
-      });
-  }
-
-  // iOS/iPadOS Safari kann Web-Audio-Töne dämpfen, solange die Seite noch
-  // kein natives <audio>/<video> abgespielt hat (sonst "ambient" statt
-  // "playback" Audio-Session-Kategorie). Ein kurzes, lautloses <audio>-
-  // Element aus derselben Touch-Geste heraus abzuspielen wechselt die
-  // Kategorie — schadet nicht, auch falls das nicht die Ursache war.
-  if (!silentAudioEl) {
-    silentAudioEl = new Audio(createSilentWavDataUrl());
-    silentAudioEl.volume = 0.01;
-    silentAudioEl.setAttribute('playsinline', 'true');
-  }
   try {
-    silentAudioEl.currentTime = 0;
-  } catch {
-    /* vor dem ersten Laden ignorierbar */
+    const c = ensureContext();
+    if (!c) return;
+
+    if (c.state === 'running') {
+      unlocked = true;
+    } else if (c.state === 'suspended') {
+      c.resume()
+        .then(() => {
+          if (c.state === 'running') unlocked = true;
+        })
+        .catch((err) => {
+          lastError = `resume() abgelehnt: ${err instanceof Error ? err.message : String(err)}`;
+          /* nächster Tipp versucht es erneut, siehe oben */
+        });
+    } else {
+      lastError = `AudioContext im Zustand "${c.state}"`;
+    }
+
+    // iOS/iPadOS Safari kann Web-Audio-Töne dämpfen, solange die Seite noch
+    // kein natives <audio>/<video> abgespielt hat (sonst "ambient" statt
+    // "playback" Audio-Session-Kategorie). Ein kurzes, lautloses <audio>-
+    // Element aus derselben Touch-Geste heraus abzuspielen wechselt die
+    // Kategorie — schadet nicht, auch falls das nicht die Ursache war.
+    if (!silentAudioEl) {
+      silentAudioEl = new Audio(createSilentWavDataUrl());
+      silentAudioEl.volume = 0.01;
+      silentAudioEl.setAttribute('playsinline', 'true');
+    }
+    try {
+      silentAudioEl.currentTime = 0;
+    } catch {
+      /* vor dem ersten Laden ignorierbar */
+    }
+    silentAudioEl.play().catch((err) => {
+      lastError = `stilles <audio> abgelehnt: ${err instanceof Error ? err.message : String(err)}`;
+    });
+  } catch (err) {
+    lastError = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
   }
-  silentAudioEl.play().catch(() => {});
+}
+
+/**
+ * Menschenlesbarer Diagnose-Text für den Elternbereich — damit sich ein
+ * Ton-Problem auf einem Gerät, das wir nicht selbst in der Hand haben,
+ * anhand des angezeigten Texts eingrenzen lässt.
+ */
+export function getAudioDebugInfo(): string {
+  const parts: string[] = [];
+  parts.push(ctx ? `Status: ${ctx.state}` : 'Status: noch nicht gestartet');
+  parts.push(unlocked ? 'freigeschaltet: ja' : 'freigeschaltet: nein');
+  parts.push(`Lautstärke: ${Math.round(volume * 100)}%`);
+  const supportsAudioContext = !!(window.AudioContext ?? (window as any).webkitAudioContext);
+  parts.push(`AudioContext unterstützt: ${supportsAudioContext ? 'ja' : 'nein'}`);
+  if (lastError) parts.push(`letzter Fehler: ${lastError}`);
+  return parts.join(' · ');
 }
 
 let volume = 0.6;
