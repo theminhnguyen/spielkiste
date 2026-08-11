@@ -21,7 +21,7 @@ Offline-Speicher des iPads.
 1. App schließen (Home-Wisch nach oben).
 2. **Flugmodus einschalten** (Kontrollzentrum).
 3. Spielkiste über das Home-Bildschirm-Symbol erneut öffnen.
-4. Alle neun Spielzeuge sollten normal funktionieren — dann ist die App bereit für
+4. Alle acht Spielzeuge sollten normal funktionieren — dann ist die App bereit für
    unterwegs, im Auto, im Flugzeug, überall ohne Internet.
 
 *Hinweis:* Solange die App vom Home-Bildschirm gestartet wird (nicht im normalen
@@ -40,7 +40,7 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
 5. Das Kind kann jetzt nur noch innerhalb der App wischen und tippen.
 6. Zum Beenden: erneut dreimal die Seitentaste drücken, Code eingeben, „Beenden".
 
-## 5. Die neun Spielzeuge
+## 5. Die acht Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,
   Reißverschluss, Windrädchen, Klapptürchen mit Tieren, Zahnräder, Klingel,
@@ -50,13 +50,11 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
   bei Berührung zweier Kleckse).
 - **Malen** — mit dem Finger auf der ganzen Fläche malen, sechs Farben unten,
   „Papier" unten rechts zum Neustarten.
-- **Stapelsteine** — Steine vom Regal oben auf die Fläche ziehen, stapeln,
-  antippen zum Wackeln, wegwischen zum Umwerfen, Besen-Knopf unten rechts
-  räumt alles weg.
 - **Seifenblasen** — pusten, ziehen, zerplatzen lassen.
 - **Putzen** — ein schmutziges Fenster mit dem Finger sauber wischen.
 - **Sticker-Szene** — Aufkleber aus der Ablage in eine kleine Wiesen-Szene
-  ziehen, verschieben, antippen zum Wackeln, zurückziehen zum Entfernen.
+  ziehen, verschieben, antippen zum Wackeln, zurückziehen zum Entfernen,
+  Besen-Knopf oben rechts räumt die ganze Szene leer.
 - **Wimmelbild** — Garten mit Haus, Baum, Schaukel und Teich; über ein Dutzend
   kleine Entdeckungen zum Antippen (Tür, Vogel, Apfel, Frosch und mehr).
 - **Gute-Nacht-Szene** — Lampe dimmt das Zimmer, drei Tiere lassen sich

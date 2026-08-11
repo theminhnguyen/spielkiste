@@ -5,7 +5,6 @@ import type { Toy } from './toys/types';
 import { brett } from './toys/brett';
 import { kleckse } from './toys/kleckse';
 import { malen } from './toys/malen';
-import { steine } from './toys/steine';
 import { blasen } from './toys/blasen';
 import { putzen } from './toys/putzen';
 import { sticker } from './toys/sticker';
@@ -14,7 +13,7 @@ import { gutenacht } from './toys/gutenacht';
 
 loadSettings();
 
-const toys: Toy[] = [brett, kleckse, malen, steine, blasen, putzen, sticker, wimmelbild, gutenacht];
+const toys: Toy[] = [brett, kleckse, malen, blasen, putzen, sticker, wimmelbild, gutenacht];
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 

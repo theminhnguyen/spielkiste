@@ -31,7 +31,7 @@ export function renderElternbereich(container: HTMLElement): void {
       <div class="eltern-reset-zone">
         <button class="eltern-reset-btn">Alles zurücksetzen</button>
         <div class="eltern-reset-confirm" hidden>
-          <p>Wirklich alle gespeicherten Spielstände löschen (Bild, Steine, Schalterstellungen)?</p>
+          <p>Wirklich alle gespeicherten Spielstände löschen (Bild, Sticker, Schalterstellungen)?</p>
           <div class="eltern-reset-actions">
             <button class="eltern-reset-cancel">Abbrechen</button>
             <button class="eltern-reset-confirm-btn">Ja, zurücksetzen</button>

@@ -1,6 +1,6 @@
 import type { Toy } from './types';
 import { loadState, saveState } from '../state';
-import { playTone, playClick, PENTATONIC_HZ } from '../audio';
+import { playTone, playClick, playWhoosh, PENTATONIC_HZ } from '../audio';
 
 const tileIcon = `
 <svg viewBox="0 0 120 120" width="100%" height="100%">
@@ -121,6 +121,13 @@ function mount(container: HTMLElement): void {
         <div class="szene-wiese"></div>
         <div class="sticker-platziert" id="stickerPlatziert"></div>
       </div>
+      <button class="sticker-clear" id="stickerClear" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="30" height="30">
+          <line x1="38" y1="6" x2="20" y2="24" stroke="#a9835e" stroke-width="4" stroke-linecap="round"/>
+          <path d="M20 24 L8 30 A20 20 0 0 0 30 40 Z" fill="#e0a458" stroke="#8a7255" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M12 32 L16 39 M18 28 L22 36 M24 26 L27 34" stroke="#fdf6ea" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
       <div class="sticker-tray" id="stickerTray">
         ${ART.map(
           (a) => `<div class="tray-item" data-art="${a.id}" style="width:${a.size * 0.62}px;height:${a.size * 0.62}px">${a.svg}</div>`,
@@ -134,6 +141,7 @@ function mount(container: HTMLElement): void {
   trayEl = container.querySelector<HTMLElement>('#stickerTray')!;
 
   renderPlaced();
+  setupClear(container);
 
   trayEl.querySelectorAll<HTMLElement>('.tray-item').forEach((item) => {
     on(item, 'pointerdown', (e) => startDragFromTray(e as PointerEvent, item));
@@ -229,6 +237,43 @@ function attachPlacedHandlers(el: HTMLElement, index: number): void {
 
   el.addEventListener('pointerup', end);
   el.addEventListener('pointercancel', end);
+}
+
+/**
+ * Szene leerräumen: alle Sticker fliegen mit sanfter Verzögerung nach rechts
+ * aus dem Bild, dann wird der Zustand geleert. Verhindert, dass sich die
+ * Wiese unbegrenzt füllt.
+ */
+function setupClear(root: HTMLElement): void {
+  const btn = root.querySelector<HTMLButtonElement>('#stickerClear')!;
+  on(btn, 'pointerdown', (e) => {
+    e.preventDefault();
+    if (placed.length === 0) return;
+    clearAllStickers();
+  });
+}
+
+function clearAllStickers(): void {
+  const layer = document.getElementById('stickerPlatziert');
+  if (!layer) return;
+  const stickerEls = [...layer.querySelectorAll<HTMLElement>('.sticker')];
+  // Verzögerung pro Sticker gedeckelt, damit sich das Wegfliegen bei vielen
+  // platzierten Stickern nicht unnötig in die Länge zieht.
+  stickerEls.forEach((el, i) => {
+    el.style.transitionDelay = `${Math.min(i * 25, 500)}ms`;
+    void el.offsetWidth;
+    el.classList.add('wegfegen');
+  });
+  playWhoosh();
+
+  window.setTimeout(
+    () => {
+      placed = [];
+      persist();
+      renderPlaced();
+    },
+    500 + Math.min(stickerEls.length * 25, 500),
+  );
 }
 
 function overTray(x: number, y: number): boolean {

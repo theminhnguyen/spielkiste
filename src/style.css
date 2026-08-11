@@ -1024,177 +1024,6 @@ body {
   opacity: 0;
 }
 
-/* ---------- Stapelsteine ---------- */
-
-.steine-stage {
-  position: absolute;
-  inset: 0;
-  background: #eef6f0;
-  overflow: hidden;
-}
-
-.steine-floor {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 24px;
-  background: linear-gradient(#d9e8dc, #cfe0d3);
-  box-shadow: 0 -2px 6px rgba(60, 90, 70, 0.08) inset;
-}
-
-.steine-towers {
-  position: absolute;
-  inset: 0;
-}
-
-.steine-tower {
-  position: absolute;
-  bottom: 24px;
-  transform: translateX(-50%);
-  transform-origin: bottom center;
-  transition: transform 480ms cubic-bezier(0.34, 1.15, 0.64, 1);
-  touch-action: none;
-  cursor: pointer;
-}
-
-.steine-tower.toppled {
-  transform: translateX(-50%) rotate(calc(var(--topple-dir) * 82deg));
-}
-
-.steine-tower.wobble {
-  animation: steine-wobble 650ms ease-in-out;
-}
-
-@keyframes steine-wobble {
-  0%, 100% { transform: translateX(-50%) rotate(0deg); }
-  20% { transform: translateX(-50%) rotate(-8deg); }
-  40% { transform: translateX(-50%) rotate(7deg); }
-  60% { transform: translateX(-50%) rotate(-5deg); }
-  80% { transform: translateX(-50%) rotate(3deg); }
-}
-
-.steine-stack {
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-}
-
-.steine-placed-block {
-  animation: steine-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes steine-pop {
-  0% { transform: scale(0.5); opacity: 0.4; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.steine-block-body {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(60, 90, 70, 0.16);
-  border: 2px solid rgba(255, 255, 255, 0.5);
-}
-
-.steine-roof {
-  position: absolute;
-  top: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 22px solid transparent;
-  border-right: 22px solid transparent;
-  border-bottom: 20px solid #7ea3c9;
-}
-
-.steine-face {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.steine-eyes {
-  display: flex;
-  gap: 12px;
-}
-
-.steine-eyes span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(74, 64, 50, 0.75);
-}
-
-.steine-mouth {
-  width: 12px;
-  height: 6px;
-  border-radius: 0 0 12px 12px;
-  border-bottom: 2px solid rgba(74, 64, 50, 0.75);
-}
-
-.steine-shelf {
-  position: absolute;
-  top: calc(var(--safe-t) + 16px);
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: flex-end;
-  gap: 16px;
-  padding: 14px 22px;
-  background: rgba(255, 250, 242, 0.7);
-  border-radius: 24px;
-  box-shadow: 0 6px 16px rgba(60, 90, 70, 0.1);
-  backdrop-filter: blur(3px);
-}
-
-.steine-shelf-item {
-  cursor: grab;
-  touch-action: none;
-}
-
-.steine-floating-block {
-  position: absolute;
-  transform: translate(-50%, -50%) scale(1.08);
-  pointer-events: none;
-  z-index: 10;
-  opacity: 0.92;
-}
-
-/* Aufräumen-Knopf */
-
-.steine-clear {
-  position: absolute;
-  bottom: calc(var(--safe-b) + 20px);
-  right: calc(var(--safe-r) + 20px);
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
-  background: #fffaf2;
-  border: none;
-  box-shadow: 0 8px 18px rgba(60, 90, 70, 0.16);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 150ms ease-out;
-  z-index: 5;
-}
-
-.steine-clear:active {
-  transform: scale(0.92);
-}
-
-/* Türme fliegen beim Aufräumen sanft nach rechts aus dem Bild */
-.steine-tower.wegfegen {
-  transition: transform 480ms cubic-bezier(0.42, 0, 0.58, 1), opacity 420ms ease-in;
-  transform: translateX(calc(-50% + 140vw)) translateY(-40px) rotate(50deg);
-  opacity: 0;
-}
-
 /* ---------- Seifenblasen ---------- */
 
 .blasen-stage {
@@ -1480,6 +1309,37 @@ body {
   60% { transform: translate(-50%, -50%) rotate(calc(var(--rot, 0deg) + 7deg)) scale(1.05); }
 }
 
+/* Sticker fliegen beim Leerräumen sanft nach rechts aus dem Bild */
+.sticker.wegfegen {
+  transition: transform 480ms cubic-bezier(0.42, 0, 0.58, 1), opacity 420ms ease-in;
+  transform: translate(calc(-50% + 140vw), calc(-50% - 40px)) rotate(50deg);
+  opacity: 0;
+}
+
+/* Aufräumen-Knopf */
+
+.sticker-clear {
+  position: absolute;
+  top: calc(var(--safe-t) + 20px);
+  right: calc(var(--safe-r) + 20px);
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #fffaf2;
+  border: none;
+  box-shadow: 0 8px 18px rgba(60, 90, 70, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 150ms ease-out;
+  z-index: 5;
+}
+
+.sticker-clear:active {
+  transform: scale(0.92);
+}
+
 /* Ablage */
 
 .sticker-tray {
@@ -1528,6 +1388,7 @@ body {
 }
 
 /* ---------- Wimmelbild ---------- */
+
 
 .wimmel-stage {
   position: absolute;
