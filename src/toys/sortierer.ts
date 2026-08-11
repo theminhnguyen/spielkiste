@@ -93,6 +93,8 @@ function defaultShapes(): ShapeState[] {
 let state: SorterState = { shapes: defaultShapes() };
 let stageEl: HTMLElement | null = null;
 let cleanup: Array<() => void> = [];
+let resizeObserver: ResizeObserver | null = null;
+let formEls: Map<string, HTMLElement> = new Map();
 
 function on(el: EventTarget, type: string, handler: EventListenerOrEventListenerObject): void {
   el.addEventListener(type, handler);
@@ -109,6 +111,7 @@ function persist(): void {
 
 function mount(container: HTMLElement): void {
   cleanup = [];
+  formEls = new Map();
   const loaded = loadState<SorterState>(STATE_KEY, STATE_VERSION, { shapes: defaultShapes() });
   // Fehlende/zusätzliche Einträge robust gegen künftige Änderungen an SHAPES abfangen.
   state = { shapes: SHAPES.map((s) => loaded.shapes.find((x) => x.id === s.id) ?? { id: s.id, xPct: s.restX, yPct: s.restY, placed: false }) };
@@ -127,7 +130,11 @@ function mount(container: HTMLElement): void {
       </div>
       <div class="sorter-boden" id="sorterBoden">
         ${SHAPES.map(
-          (s) => `<div class="sorter-form" data-shape="${s.id}" style="left:${s.restX}%;top:${s.restY}%">${s.svg}</div>`,
+          (s) => `
+          <div class="sorter-form" data-shape="${s.id}">
+            <div class="sorter-form-fx">${s.svg}</div>
+          </div>
+        `,
         ).join('')}
       </div>
     </div>
@@ -139,17 +146,49 @@ function mount(container: HTMLElement): void {
     const formEl = container.querySelector<HTMLElement>(`.sorter-form[data-shape="${s.id}"]`)!;
     const holeEl = container.querySelector<HTMLElement>(`.sorter-hole[data-hole="${s.id}"]`)!;
     const fillEl = container.querySelector<HTMLElement>(`.hole-fuellung[data-fill="${s.id}"]`)!;
-    applyShapeVisual(s.id, formEl, fillEl);
+    formEls.set(s.id, formEl);
+    applyShapeVisual(s.id, fillEl);
+    applyFormTransform(s.id);
     setupDrag(s, formEl);
     setupPop(s, holeEl, formEl, fillEl);
   });
+
+  // Bühnengröße kann beim allerersten Rendern noch nicht feststehen (siehe
+  // Klang-Kleckse-Fix) oder sich durch Drehen/Split View ändern — bei jeder
+  // echten Größenänderung alle Formen (außer der gerade gezogenen) neu
+  // einordnen.
+  resizeObserver = new ResizeObserver(() => {
+    SHAPES.forEach((s) => {
+      if (!draggingId || draggingId !== s.id) applyFormTransform(s.id);
+    });
+  });
+  resizeObserver.observe(stageEl);
 }
 
-function applyShapeVisual(id: string, formEl: HTMLElement, fillEl: HTMLElement): void {
+let draggingId: string | null = null;
+
+/**
+ * Positioniert eine Form ausschließlich über `transform` (kein `left`/`top`)
+ * — jede Bewegung löst dadurch nur Compositing aus, kein Layout-Reflow.
+ * `left`/`top`-Updates während des Ziehens hätten bei jedem Pointermove
+ * einen Reflow erzwungen und sichtbar "Spuren" hinterlassen.
+ */
+function applyFormTransform(id: string, offsetXPx = 0, offsetYPx = 0): void {
+  const formEl = formEls.get(id);
+  if (!formEl || !stageEl) return;
+  const rect = stageEl.getBoundingClientRect();
   const st = stateOf(id);
-  formEl.style.left = `${st.xPct}%`;
-  formEl.style.top = `${st.yPct}%`;
-  formEl.classList.toggle('versteckt', st.placed);
+  const halfW = formEl.offsetWidth / 2;
+  const halfH = formEl.offsetHeight / 2;
+  const x = (st.xPct / 100) * rect.width - halfW + offsetXPx;
+  const y = (st.yPct / 100) * rect.height - halfH + offsetYPx;
+  formEl.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+}
+
+function applyShapeVisual(id: string, fillEl: HTMLElement): void {
+  const st = stateOf(id);
+  const formEl = formEls.get(id);
+  formEl?.classList.toggle('versteckt', st.placed);
   fillEl.classList.toggle('gefuellt', st.placed);
 }
 
@@ -165,6 +204,7 @@ function setupDrag(def: ShapeDef, formEl: HTMLElement): void {
     const st = stateOf(def.id);
     if (st.placed) return;
     dragging = true;
+    draggingId = def.id;
     moved = 0;
     startX = pe.clientX;
     startY = pe.clientY;
@@ -179,18 +219,18 @@ function setupDrag(def: ShapeDef, formEl: HTMLElement): void {
   on(formEl, 'pointermove', (e) => {
     if (!dragging || !stageEl) return;
     const pe = e as PointerEvent;
-    moved = Math.max(moved, Math.hypot(pe.clientX - startX, pe.clientY - startY));
-    const r = stageEl.getBoundingClientRect();
-    const st = stateOf(def.id);
-    st.xPct = clamp(((pe.clientX - r.left) / r.width) * 100, 3, 97);
-    st.yPct = clamp(((pe.clientY - r.top) / r.height) * 100, 3, 97);
-    formEl.style.left = `${st.xPct}%`;
-    formEl.style.top = `${st.yPct}%`;
+    const dx = pe.clientX - startX;
+    const dy = pe.clientY - startY;
+    moved = Math.max(moved, Math.hypot(dx, dy));
+    // Während des Ziehens bleibt xPct/yPct unverändert — die Bewegung läuft
+    // rein als zusätzlicher Pixel-Versatz auf demselben transform.
+    applyFormTransform(def.id, dx, dy);
   });
 
   const end = (e: Event) => {
     if (!dragging) return;
     dragging = false;
+    draggingId = null;
     const pe = e as PointerEvent;
     formEl.classList.remove('greift');
     try {
@@ -201,11 +241,21 @@ function setupDrag(def: ShapeDef, formEl: HTMLElement): void {
 
     if (moved < 6) {
       // Kurzer Tipp statt Ziehen: nicht einsortieren, nur ein kleines Wackeln.
+      applyFormTransform(def.id);
       wackeln(formEl);
       playClick(420);
       persist();
       return;
     }
+
+    // Endposition aus der letzten Zeigerposition übernehmen.
+    if (stageEl) {
+      const r = stageEl.getBoundingClientRect();
+      const st = stateOf(def.id);
+      st.xPct = clamp(((pe.clientX - r.left) / r.width) * 100, 3, 97);
+      st.yPct = clamp(((pe.clientY - r.top) / r.height) * 100, 3, 97);
+    }
+    applyFormTransform(def.id);
 
     const holeEl = stageEl?.querySelector<HTMLElement>(`.sorter-hole[data-hole="${def.id}"]`);
     if (holeEl && stageEl) {
@@ -217,7 +267,7 @@ function setupDrag(def: ShapeDef, formEl: HTMLElement): void {
         const fillEl = stageEl.querySelector<HTMLElement>(`.hole-fuellung[data-fill="${def.id}"]`)!;
         const st = stateOf(def.id);
         st.placed = true;
-        applyShapeVisual(def.id, formEl, fillEl);
+        applyShapeVisual(def.id, fillEl);
         thunk(fillEl, def.note);
         persist();
         return;
@@ -239,7 +289,8 @@ function setupPop(def: ShapeDef, holeEl: HTMLElement, formEl: HTMLElement, fillE
     st.placed = false;
     st.xPct = def.restX;
     st.yPct = def.restY;
-    applyShapeVisual(def.id, formEl, fillEl);
+    applyShapeVisual(def.id, fillEl);
+    applyFormTransform(def.id);
     pop(formEl);
     playTone({ freq: PENTATONIC_HZ[def.note % PENTATONIC_HZ.length] * 1.5, duration: 0.18, attack: 0.005, release: 0.25, type: 'triangle', gain: 0.24 });
     persist();
@@ -255,17 +306,21 @@ function thunk(fillEl: HTMLElement, note: number): void {
 }
 
 function pop(formEl: HTMLElement): void {
-  formEl.classList.remove('huepft');
-  void formEl.offsetWidth;
-  formEl.classList.add('huepft');
-  window.setTimeout(() => formEl.classList.remove('huepft'), 500);
+  const fx = formEl.querySelector<HTMLElement>('.sorter-form-fx');
+  if (!fx) return;
+  fx.classList.remove('huepft');
+  void fx.offsetWidth;
+  fx.classList.add('huepft');
+  window.setTimeout(() => fx.classList.remove('huepft'), 500);
 }
 
 function wackeln(formEl: HTMLElement): void {
-  formEl.classList.remove('wackelt');
-  void formEl.offsetWidth;
-  formEl.classList.add('wackelt');
-  window.setTimeout(() => formEl.classList.remove('wackelt'), 400);
+  const fx = formEl.querySelector<HTMLElement>('.sorter-form-fx');
+  if (!fx) return;
+  fx.classList.remove('wackelt');
+  void fx.offsetWidth;
+  fx.classList.add('wackelt');
+  window.setTimeout(() => fx.classList.remove('wackelt'), 400);
 }
 
 function clamp(v: number, min: number, max: number): number {
@@ -275,7 +330,11 @@ function clamp(v: number, min: number, max: number): number {
 function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
+  resizeObserver?.disconnect();
+  resizeObserver = null;
+  formEls = new Map();
   stageEl = null;
+  draggingId = null;
   state = { shapes: defaultShapes() };
 }
 
