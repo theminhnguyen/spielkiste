@@ -41,6 +41,7 @@ let stageEl: HTMLElement | null = null;
 let blobs: BlobRuntime[] = [];
 let cleanup: Array<() => void> = [];
 let collidingPairs = new Set<string>();
+let resizeObserver: ResizeObserver | null = null;
 
 function on(el: EventTarget, type: string, handler: EventListenerOrEventListenerObject): void {
   el.addEventListener(type, handler);
@@ -89,6 +90,18 @@ function mount(container: HTMLElement): void {
     applyTransform(blob);
     setupBlob(blob);
   });
+
+  // Positionen hängen an einer per JS gemessenen Pixelgröße der Bühne (statt
+  // an CSS-Prozentwerten), damit das Ziehen rein über transform läuft. Steht
+  // die Bühne beim allerersten Öffnen noch nicht mit ihrer echten Größe im
+  // Layout (oder ändert sie sich später durch Drehen/Split View), holt der
+  // ResizeObserver die Kleckse aus der Ecke bzw. rückt sie neu ein.
+  resizeObserver = new ResizeObserver(() => {
+    blobs.forEach((blob) => {
+      if (!blob.grabbed) applyTransform(blob);
+    });
+  });
+  resizeObserver.observe(stageEl);
 }
 
 /**
@@ -126,6 +139,7 @@ function setupBlob(blob: BlobRuntime): void {
       gain: 0.35,
     });
     squish(blob, 1.18);
+    singen(blob);
   });
 
   on(el, 'pointermove', (e) => {
@@ -182,6 +196,22 @@ function squish(blob: BlobRuntime, amount: number): void {
   }, 160);
 }
 
+/** Sichtbares Gegenstück zum Griff-Ton — der Mund öffnet sich kurz, auch ohne Ton erkennbar. */
+function singen(blob: BlobRuntime): void {
+  blob.el.classList.remove('singt');
+  void blob.el.offsetWidth;
+  blob.el.classList.add('singt');
+  window.setTimeout(() => blob.el.classList.remove('singt'), 300);
+}
+
+/** Sichtbarer Ping bei Kollision zweier Kleckse — funktioniert auch bei stummgeschaltetem Ton. */
+function funken(blob: BlobRuntime): void {
+  blob.el.classList.remove('funkt');
+  void blob.el.offsetWidth;
+  blob.el.classList.add('funkt');
+  window.setTimeout(() => blob.el.classList.remove('funkt'), 420);
+}
+
 function pairKey(a: number, b: number): string {
   return a < b ? `${a}-${b}` : `${b}-${a}`;
 }
@@ -214,6 +244,8 @@ function checkCollisions(moved: BlobRuntime): void {
           gain: 0.22,
         });
         squish(other, 1.1);
+        funken(moved);
+        funken(other);
       }
     } else {
       collidingPairs.delete(key);
@@ -224,6 +256,8 @@ function checkCollisions(moved: BlobRuntime): void {
 function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
+  resizeObserver?.disconnect();
+  resizeObserver = null;
   blobs = [];
   stageEl = null;
   collidingPairs = new Set();

@@ -884,6 +884,18 @@ body {
   box-shadow: 0 14px 26px rgba(90, 50, 60, 0.22);
 }
 
+/* Sichtbarer Ping bei Berührung zweier Kleckse — funktioniert auch stumm
+   geschaltet (z. B. im Flugzeug), ohne auf den Ton angewiesen zu sein. */
+.klecks.funkt {
+  animation: klecks-funkt 420ms ease-out;
+}
+
+@keyframes klecks-funkt {
+  0% { box-shadow: 0 8px 18px rgba(90, 50, 60, 0.16), 0 0 0 0 rgba(255, 255, 255, 0.9); }
+  45% { box-shadow: 0 8px 18px rgba(90, 50, 60, 0.16), 0 0 0 16px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 8px 18px rgba(90, 50, 60, 0.16), 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
 .klecks-face {
   display: flex;
   flex-direction: column;
@@ -917,6 +929,16 @@ body {
   border-bottom: 3px solid #4a4032;
   border-left: 3px solid transparent;
   border-right: 3px solid transparent;
+  transition: all 150ms ease-out;
+}
+
+/* Mund öffnet sich kurz zum "Singen" — sichtbares Gegenstück zum Ton beim Greifen. */
+.klecks.singt .klecks-mouth {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #4a4032;
+  background: rgba(74, 64, 50, 0.12);
 }
 
 /* ---------- Malen ---------- */
