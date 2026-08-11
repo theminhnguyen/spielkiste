@@ -21,7 +21,7 @@ Offline-Speicher des iPads.
 1. App schließen (Home-Wisch nach oben).
 2. **Flugmodus einschalten** (Kontrollzentrum).
 3. Spielkiste über das Home-Bildschirm-Symbol erneut öffnen.
-4. Alle acht Spielzeuge sollten normal funktionieren — dann ist die App bereit für
+4. Alle neun Spielzeuge sollten normal funktionieren — dann ist die App bereit für
    unterwegs, im Auto, im Flugzeug, überall ohne Internet.
 
 *Hinweis:* Solange die App vom Home-Bildschirm gestartet wird (nicht im normalen
@@ -40,7 +40,7 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
 5. Das Kind kann jetzt nur noch innerhalb der App wischen und tippen.
 6. Zum Beenden: erneut dreimal die Seitentaste drücken, Code eingeben, „Beenden".
 
-## 5. Die acht Spielzeuge
+## 5. Die neun Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,
   Reißverschluss, Windrädchen, Klapptürchen mit Tieren, Zahnräder, Klingel,
@@ -50,6 +50,8 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
   bei Berührung zweier Kleckse).
 - **Malen** — mit dem Finger auf der ganzen Fläche malen, sechs Farben unten,
   „Papier" unten rechts zum Neustarten.
+- **Formen-Sortierer** — bunte Formen (Kreis, Quadrat, Dreieck, Stern, Herz)
+  in die passenden Löcher einer Holzkiste ziehen; antippen holt sie wieder heraus.
 - **Seifenblasen** — pusten, ziehen, zerplatzen lassen.
 - **Putzen** — ein schmutziges Fenster mit dem Finger sauber wischen.
 - **Sticker-Szene** — Aufkleber aus der Ablage in eine kleine Wiesen-Szene

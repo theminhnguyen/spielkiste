@@ -5,9 +5,10 @@ von Pok Pok (Montessori, low-stimulation, open-ended play), aber komplett eigens
 umgesetzt mit eigenen Grafiken und Sounds.
 
 **Status: Fertig (v1.0.0)** — alle Phasen aus [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md)
-abgeschlossen. Spielzimmer + 8 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen,
-Seifenblasen, Putzen, Sticker-Szene, Wimmelbild, Gute-Nacht-Szene),
-komplett offlinefähig, Zustand bleibt gespeichert — auch praktisch für lange Flüge.
+abgeschlossen. Spielzimmer + 9 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen,
+Formen-Sortierer, Seifenblasen, Putzen, Sticker-Szene, Wimmelbild,
+Gute-Nacht-Szene), komplett offlinefähig, Zustand bleibt gespeichert — auch
+praktisch für lange Flüge.
 
 **Live:** https://theminhnguyen.github.io/spielkiste/
 
