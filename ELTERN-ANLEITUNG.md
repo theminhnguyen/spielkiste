@@ -21,8 +21,8 @@ Offline-Speicher des iPads.
 1. App schließen (Home-Wisch nach oben).
 2. **Flugmodus einschalten** (Kontrollzentrum).
 3. Spielkiste über das Home-Bildschirm-Symbol erneut öffnen.
-4. Alle vier Spielzeuge sollten normal funktionieren — dann ist die App bereit für
-   unterwegs, im Auto, überall ohne Internet.
+4. Alle neun Spielzeuge sollten normal funktionieren — dann ist die App bereit für
+   unterwegs, im Auto, im Flugzeug, überall ohne Internet.
 
 *Hinweis:* Solange die App vom Home-Bildschirm gestartet wird (nicht im normalen
 Safari-Tab), bleibt der Offline-Speicher dauerhaft erhalten — auch nach Wochen ohne
@@ -40,19 +40,31 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
 5. Das Kind kann jetzt nur noch innerhalb der App wischen und tippen.
 6. Zum Beenden: erneut dreimal die Seitentaste drücken, Code eingeben, „Beenden".
 
-## 5. Die vier Spielzeuge
+## 5. Die neun Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,
-  Reißverschluss, Windrädchen, Klapptürchen mit Tieren.
+  Reißverschluss, Windrädchen, Klapptürchen mit Tieren, Zahnräder, Klingel,
+  Vorhang, Kurbel-Überraschung, Kaleidoskop, Klettverschluss, Perlenschieber.
 - **Klang-Kleckse** — sechs weiche Formen antippen und ziehen, alles klingt
-  harmonisch zusammen.
+  harmonisch zusammen (auch ohne Ton sichtbar: Mund öffnet sich, Ring-Puls
+  bei Berührung zweier Kleckse).
 - **Malen** — mit dem Finger auf der ganzen Fläche malen, sechs Farben unten,
   „Papier" unten rechts zum Neustarten.
 - **Stapelsteine** — Steine vom Regal oben auf die Fläche ziehen, stapeln,
-  antippen zum Wackeln, wegwischen zum Umwerfen.
+  antippen zum Wackeln, wegwischen zum Umwerfen, Besen-Knopf unten rechts
+  räumt alles weg.
+- **Seifenblasen** — pusten, ziehen, zerplatzen lassen.
+- **Putzen** — ein schmutziges Fenster mit dem Finger sauber wischen.
+- **Sticker-Szene** — Aufkleber aus der Ablage in eine kleine Wiesen-Szene
+  ziehen, verschieben, antippen zum Wackeln, zurückziehen zum Entfernen.
+- **Wimmelbild** — Garten mit Haus, Baum, Schaukel und Teich; über ein Dutzend
+  kleine Entdeckungen zum Antippen (Tür, Vogel, Apfel, Frosch und mehr).
+- **Gute-Nacht-Szene** — Lampe dimmt das Zimmer, drei Tiere lassen sich
+  zudecken und wieder wecken; ruhig für die Zeit vorm Einschlafen oder
+  unterwegs.
 
-Alles bleibt gespeichert (außer die Klang-Kleckse) — beim nächsten Öffnen ist
-alles wieder da, wie das Kind es verlassen hat.
+Alles bleibt gespeichert (außer die kurzen Klang-Kleckse-Positionen) — beim
+nächsten Öffnen ist alles wieder da, wie das Kind es verlassen hat.
 
 ## 6. Elternbereich
 
