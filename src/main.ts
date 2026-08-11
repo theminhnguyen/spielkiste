@@ -8,10 +8,11 @@ import { malen } from './toys/malen';
 import { steine } from './toys/steine';
 import { blasen } from './toys/blasen';
 import { putzen } from './toys/putzen';
+import { sticker } from './toys/sticker';
 
 loadSettings();
 
-const toys: Toy[] = [brett, kleckse, malen, steine, blasen, putzen];
+const toys: Toy[] = [brett, kleckse, malen, steine, blasen, putzen, sticker];
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 

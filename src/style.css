@@ -1372,3 +1372,135 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .putzen-stage.sauber .putzen-funkeln { animation: none; }
 }
+/* ---------- Sticker-Szene ---------- */
+
+.sticker-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #eef6f0;
+}
+
+.sticker-szene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: clamp(96px, 15vmin, 140px);
+  overflow: hidden;
+}
+
+.szene-himmel {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #cfe7f5 0%, #e4f2fa 62%, #eaf6ee 100%);
+}
+
+.szene-huegel {
+  position: absolute;
+  border-radius: 50% 50% 0 0;
+}
+
+.szene-huegel.h1 {
+  left: -14%;
+  bottom: 16%;
+  width: 78%;
+  height: 34%;
+  background: #b8d9bb;
+}
+
+.szene-huegel.h2 {
+  right: -12%;
+  bottom: 16%;
+  width: 66%;
+  height: 26%;
+  background: #a8cfae;
+}
+
+.szene-wiese {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+  background: linear-gradient(180deg, #9ec99f, #8bbd92);
+}
+
+.sticker-platziert {
+  position: absolute;
+  inset: 0;
+}
+
+.sticker {
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  transform-origin: center;
+  touch-action: none;
+  cursor: grab;
+  filter: drop-shadow(0 3px 5px rgba(60, 80, 60, 0.22));
+}
+
+.sticker svg { width: 100%; height: 100%; display: block; }
+
+.sticker.greift {
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1.12);
+  filter: drop-shadow(0 8px 12px rgba(60, 80, 60, 0.3));
+  cursor: grabbing;
+}
+
+.sticker.wackelt {
+  animation: sticker-wackeln 620ms ease-in-out;
+}
+
+@keyframes sticker-wackeln {
+  0%, 100% { transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1); }
+  25% { transform: translate(-50%, -50%) rotate(calc(var(--rot, 0deg) - 9deg)) scale(1.08); }
+  60% { transform: translate(-50%, -50%) rotate(calc(var(--rot, 0deg) + 7deg)) scale(1.05); }
+}
+
+/* Ablage */
+
+.sticker-tray {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(96px, 15vmin, 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.8vmin, 20px);
+  padding: 0 clamp(10px, 3vmin, 28px);
+  background: rgba(255, 250, 242, 0.92);
+  box-shadow: 0 -6px 18px rgba(90, 110, 90, 0.12);
+  backdrop-filter: blur(4px);
+  z-index: 4;
+}
+
+.tray-item {
+  flex: 0 0 auto;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 160ms ease-out;
+}
+
+.tray-item svg { width: 100%; height: 100%; display: block; }
+
+.tray-item:active {
+  transform: scale(1.14);
+}
+
+.sticker-ghost {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(1.1);
+  pointer-events: none;
+  opacity: 0.94;
+  z-index: 10;
+  filter: drop-shadow(0 8px 14px rgba(60, 80, 60, 0.32));
+}
+
+.sticker-ghost svg { width: 100%; height: 100%; display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sticker.wackelt { animation: none; }
+}
