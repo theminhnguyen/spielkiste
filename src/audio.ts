@@ -47,27 +47,43 @@ function createSilentWavDataUrl(): string {
 }
 
 export function unlockAudio(): void {
+  // Wichtig: `unlocked` erst setzen, wenn der Context nachweislich läuft.
+  // Vorher wurde die Freischaltung nach dem ersten Versuch dauerhaft
+  // übersprungen — falls resume() bei diesem einen Versuch nicht rechtzeitig
+  // durchlief (auf iOS keine Seltenheit), blieb der Ton für die gesamte
+  // Sitzung stumm, ganz gleich wie oft danach getippt wurde.
   if (unlocked) return;
   const c = ensureContext();
   if (!c) return;
-  if (c.state === 'suspended') {
-    c.resume().catch(() => {});
+
+  if (c.state === 'running') {
+    unlocked = true;
+  } else if (c.state === 'suspended') {
+    c.resume()
+      .then(() => {
+        if (c.state === 'running') unlocked = true;
+      })
+      .catch(() => {
+        /* nächster Tipp versucht es erneut, siehe oben */
+      });
   }
 
-  // iOS/iPadOS Safari dämpft Web-Audio-Töne über den physischen
-  // Stumm-Schalter, solange die Seite noch kein natives <audio>/<video>
-  // abgespielt hat (Browser nutzt sonst die "ambient" Audio-Session-
-  // Kategorie). Ein kurzes, lautloses <audio>-Element aus derselben
-  // Touch-Geste heraus abzuspielen wechselt die Kategorie auf "playback" —
-  // danach ignoriert auch der Web-Audio-Ton den Stumm-Schalter.
+  // iOS/iPadOS Safari kann Web-Audio-Töne dämpfen, solange die Seite noch
+  // kein natives <audio>/<video> abgespielt hat (sonst "ambient" statt
+  // "playback" Audio-Session-Kategorie). Ein kurzes, lautloses <audio>-
+  // Element aus derselben Touch-Geste heraus abzuspielen wechselt die
+  // Kategorie — schadet nicht, auch falls das nicht die Ursache war.
   if (!silentAudioEl) {
     silentAudioEl = new Audio(createSilentWavDataUrl());
     silentAudioEl.volume = 0.01;
     silentAudioEl.setAttribute('playsinline', 'true');
   }
+  try {
+    silentAudioEl.currentTime = 0;
+  } catch {
+    /* vor dem ersten Laden ignorierbar */
+  }
   silentAudioEl.play().catch(() => {});
-
-  unlocked = true;
 }
 
 let volume = 0.6;
