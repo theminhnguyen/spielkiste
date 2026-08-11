@@ -1504,3 +1504,537 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .sticker.wackelt { animation: none; }
 }
+
+/* ---------- Wimmelbild ---------- */
+
+.wimmel-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #eef6f0;
+}
+
+.wimmel-szene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.w-himmel {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #cfe7f5 0%, #e4f2fa 55%, #eaf6ee 100%);
+}
+
+.w-huegel {
+  position: absolute;
+  border-radius: 50% 50% 0 0;
+}
+
+.w-huegel.h1 { left: -14%; bottom: 12%; width: 78%; height: 30%; background: #b8d9bb; }
+.w-huegel.h2 { right: -12%; bottom: 12%; width: 66%; height: 24%; background: #a8cfae; }
+
+.w-wiese {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 20%;
+  background: linear-gradient(180deg, #9ec99f, #8bbd92);
+}
+
+[data-item] { cursor: pointer; touch-action: none; }
+
+.w-item svg,
+.w-vogelhaus svg,
+.w-briefkasten > svg,
+.w-teich svg,
+.w-schnecke svg,
+.w-marienkaefer svg,
+.w-apfel svg,
+.w-biene svg,
+.w-maulwurf-tier svg,
+.w-vogel svg,
+.tuer-katze svg,
+.schaukel-rahmen {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Sonne, Wolke: einfache Himmelselemente */
+
+.w-item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 5px rgba(60, 80, 60, 0.16));
+}
+
+.w-sonne { width: clamp(64px, 8vmin, 100px); height: clamp(64px, 8vmin, 100px); }
+
+.sonne-strahlen { transform-origin: 50px 50px; transition: transform 700ms ease-out; }
+.w-sonne.strahlt svg circle:nth-of-type(1) { transition: transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+.w-sonne.strahlt { animation: wimmel-sonne-puls 700ms ease-out; }
+.w-sonne.strahlt .sonne-strahlen { transform: rotate(25deg) scale(1.15); }
+
+@keyframes wimmel-sonne-puls {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  40% { transform: translate(-50%, -50%) scale(1.18); }
+}
+
+.w-wolke { width: clamp(84px, 10vmin, 130px); height: clamp(50px, 6vmin, 78px); }
+
+.w-wolke.zieht-vorbei { animation: wimmel-wolke-drift 2.4s ease-in-out; }
+
+@keyframes wimmel-wolke-drift {
+  0% { transform: translate(-50%, -50%) translateX(0); }
+  50% { transform: translate(-50%, -50%) translateX(120px); opacity: 0.7; }
+  51% { transform: translate(-50%, -50%) translateX(-120px); }
+  100% { transform: translate(-50%, -50%) translateX(0); opacity: 1; }
+}
+
+/* Gemeinsame Basis für alle bodenständigen Szenen-Objekte */
+
+.w-vogelhaus, .w-haus, .w-baum, .w-schaukel, .w-blume,
+.w-maulwurfshuegel, .w-briefkasten, .w-teich, .w-schnecke, .w-marienkaefer {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+/* Vogelhaus */
+
+.w-vogelhaus {
+  width: clamp(60px, 7vmin, 88px);
+  height: clamp(60px, 7vmin, 88px);
+  overflow: visible;
+  filter: drop-shadow(0 3px 5px rgba(60, 80, 60, 0.16));
+}
+
+.w-vogel {
+  position: absolute;
+  left: 52%;
+  top: 32%;
+  width: 65%;
+  height: 65%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+}
+
+.w-vogelhaus.fliegt .w-vogel {
+  animation: wimmel-vogel-flug 1.6s ease-in-out;
+}
+
+@keyframes wimmel-vogel-flug {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  14% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  40% { transform: translate(calc(-50% + 60px), calc(-50% - 68px)) scale(1) rotate(12deg); opacity: 1; }
+  65% { transform: translate(calc(-50% + 110px), calc(-50% - 16px)) scale(0.9) rotate(-10deg); opacity: 1; }
+  85% { transform: translate(calc(-50% + 26px), calc(-50% - 24px)) scale(1) rotate(6deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+/* Haus */
+
+.w-haus {
+  width: clamp(200px, 23vmin, 280px);
+  height: clamp(220px, 25vmin, 300px);
+}
+
+.w-dach {
+  position: absolute;
+  top: 0;
+  left: -8%;
+  right: -8%;
+  height: 40%;
+  background: #e88a9a;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  filter: drop-shadow(0 4px 4px rgba(60, 40, 30, 0.14));
+}
+
+.w-schornstein {
+  position: absolute;
+  right: 22%;
+  top: 6%;
+  width: 11%;
+  height: 20%;
+  background: #c9a37e;
+  border-radius: 2px 2px 0 0;
+}
+
+.rauch {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(210, 210, 210, 0.65);
+  opacity: 0;
+  transform: translate(-50%, 0) scale(0.6);
+}
+
+.w-schornstein.pufft .rauch { animation: wimmel-rauch 1.2s ease-out forwards; }
+.w-schornstein.pufft .rauch.r2 { animation-delay: 0.2s; }
+.w-schornstein.pufft .rauch.r3 { animation-delay: 0.4s; }
+
+@keyframes wimmel-rauch {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+  25% { opacity: 0.75; }
+  100% { opacity: 0; transform: translate(-50%, -84px) scale(1.5); }
+}
+
+.w-wand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 62%;
+  background: #f3e7db;
+  border: 3px solid #c9a37e;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-sizing: border-box;
+}
+
+.w-fenster {
+  position: absolute;
+  left: 12%;
+  top: 16%;
+  width: 34%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 3px solid #c9a37e;
+  perspective: 300px;
+}
+
+.fenster-innen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#2c3a4a, #445a6e);
+}
+
+.fenster-gesicht {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46%;
+  height: 46%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #f3e7db;
+}
+
+.fenster-gesicht::before,
+.fenster-gesicht::after {
+  content: '';
+  position: absolute;
+  top: 42%;
+  width: 22%;
+  height: 3px;
+  border-radius: 2px;
+  background: #4a4032;
+}
+
+.fenster-gesicht::before { left: 16%; }
+.fenster-gesicht::after { right: 16%; }
+
+.fenster-vorhang {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 52%;
+  background: repeating-linear-gradient(90deg, #e88a9a, #e88a9a 6px, #d97a8a 6px, #d97a8a 12px);
+  transition: transform 460ms ease-out;
+}
+
+.fenster-vorhang.links { left: 0; }
+.fenster-vorhang.rechts { right: 0; }
+
+.w-fenster.offen .fenster-vorhang.links { transform: translateX(-84%); }
+.w-fenster.offen .fenster-vorhang.rechts { transform: translateX(84%); }
+
+.w-tuer {
+  position: absolute;
+  right: 14%;
+  bottom: 0;
+  width: 32%;
+  height: 78%;
+  perspective: 380px;
+}
+
+.tuer-katze {
+  position: absolute;
+  inset: 6%;
+  border-radius: 10px;
+  background: #fffaf2;
+  overflow: hidden;
+}
+
+.tuer-panel {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px 10px 4px 4px;
+  background: #e0a458;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.3);
+  transform-origin: left center;
+  transition: transform 500ms ease-out;
+}
+
+.w-tuer.offen .tuer-panel { transform: rotateY(-112deg); }
+
+/* Baum */
+
+.w-baum {
+  width: clamp(140px, 16vmin, 190px);
+  height: clamp(230px, 26vmin, 300px);
+}
+
+.baum-stamm {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 16%;
+  height: 34%;
+  background: #a9835e;
+  border-radius: 6px;
+  transform: translateX(-50%);
+}
+
+.baum-krone {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 100%;
+  height: 64%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 42% 38%, #8fc4a8, #7fb99e 72%);
+  border-radius: 50%;
+}
+
+.w-apfel {
+  position: absolute;
+  left: 32%;
+  top: 56%;
+  width: clamp(28px, 3.4vmin, 42px);
+  transform-origin: top center;
+}
+
+.w-apfel.faellt { animation: wimmel-apfel-fall 900ms cubic-bezier(0.45, 0, 0.55, 1); }
+
+@keyframes wimmel-apfel-fall {
+  0% { transform: translateY(0); }
+  55% { transform: translateY(150px); }
+  72% { transform: translateY(120px) scale(1.08, 0.9); }
+  100% { transform: translateY(0); }
+}
+
+/* Schaukel */
+
+.w-schaukel {
+  width: clamp(150px, 17vmin, 210px);
+  height: clamp(160px, 18vmin, 220px);
+}
+
+.schaukel-rahmen {
+  position: absolute;
+  inset: 0;
+}
+
+.schaukel-sitz {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 46%;
+  height: 84%;
+  transform-origin: 50% 0%;
+}
+
+.schaukel-sitz .seil {
+  position: absolute;
+  top: 0;
+  bottom: 22%;
+  width: 3px;
+  background: #a9835e;
+}
+
+.schaukel-sitz .seil.links { left: 14%; }
+.schaukel-sitz .seil.rechts { right: 14%; }
+
+.schaukel-sitz .brett {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  height: 14%;
+  border-radius: 6px;
+  background: #e0a458;
+  border: 2px solid #a9835e;
+}
+
+.schaukel-sitz.schwingt { animation: wimmel-schaukel-schwung 2.2s cubic-bezier(0.45, 0, 0.55, 1); }
+
+@keyframes wimmel-schaukel-schwung {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  12% { transform: translateX(-50%) rotate(26deg); }
+  35% { transform: translateX(-50%) rotate(-22deg); }
+  55% { transform: translateX(-50%) rotate(16deg); }
+  72% { transform: translateX(-50%) rotate(-10deg); }
+  86% { transform: translateX(-50%) rotate(5deg); }
+}
+
+/* Blume + Biene */
+
+.w-blume {
+  width: clamp(90px, 10vmin, 128px);
+  height: clamp(140px, 16vmin, 190px);
+}
+
+.w-biene {
+  position: absolute;
+  left: 62%;
+  top: 18%;
+  width: clamp(36px, 4.2vmin, 54px);
+  transform-origin: center;
+}
+
+.w-biene.summt { animation: wimmel-biene-flug 1.3s ease-in-out; }
+
+@keyframes wimmel-biene-flug {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(30px, -18px) rotate(12deg); }
+  40% { transform: translate(46px, 10px) rotate(-8deg); }
+  60% { transform: translate(14px, 24px) rotate(10deg); }
+  80% { transform: translate(-10px, 4px) rotate(-6deg); }
+}
+
+/* Maulwurfshügel */
+
+.w-maulwurfshuegel {
+  width: clamp(96px, 11vmin, 136px);
+  height: clamp(64px, 7.5vmin, 92px);
+}
+
+.huegel-erde {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60%;
+  background: #a9835e;
+  border-radius: 50% 50% 0 0;
+}
+
+.w-maulwurf-tier {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  width: 56%;
+  transform: translate(-50%, 40%) scale(0.7);
+  opacity: 0;
+  transform-origin: bottom center;
+}
+
+.w-maulwurfshuegel.guckt .w-maulwurf-tier {
+  animation: wimmel-maulwurf-pop 1.2s ease-out;
+}
+
+@keyframes wimmel-maulwurf-pop {
+  0% { transform: translate(-50%, 40%) scale(0.7); opacity: 0; }
+  30% { transform: translate(-50%, -18%) scale(1); opacity: 1; }
+  70% { transform: translate(-50%, -18%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, 40%) scale(0.7); opacity: 0; }
+}
+
+/* Briefkasten */
+
+.w-briefkasten {
+  width: clamp(66px, 7.6vmin, 96px);
+  height: clamp(100px, 11.5vmin, 140px);
+}
+
+.briefkasten-flagge {
+  position: absolute;
+  left: 2%;
+  top: 32%;
+  width: 22%;
+  height: 4px;
+  background: #e88a9a;
+  border-radius: 2px;
+  transform-origin: right center;
+  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.w-briefkasten.offen .briefkasten-flagge { transform: rotate(-70deg); }
+
+/* Teich + Frosch */
+
+.w-teich {
+  width: clamp(140px, 16vmin, 200px);
+  height: clamp(76px, 9vmin, 108px);
+}
+
+.teich-wasser {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #a7d4e0, #7fb2c4 78%);
+  border: 3px solid #6a9bab;
+}
+
+.w-frosch {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: 44%;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
+
+.w-frosch.huepft { animation: wimmel-frosch-huepf 700ms ease-out; }
+
+@keyframes wimmel-frosch-huepf {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  35% { transform: translate(-50%, -140%) scale(1.05, 0.92); }
+  55% { transform: translate(-50%, -150%) scale(0.95, 1.08); }
+  80% { transform: translate(-50%, -50%) scale(1.06, 0.9); }
+}
+
+/* Schnecke */
+
+.w-schnecke {
+  width: clamp(88px, 10vmin, 128px);
+  height: clamp(62px, 7vmin, 90px);
+}
+
+.schnecke-fuehler { transform-origin: 16px 44px; transition: transform 250ms ease-out; }
+
+.w-schnecke.streckt .schnecke-fuehler { transform: scaleY(1.35); }
+
+/* Marienkäfer */
+
+.w-marienkaefer {
+  width: clamp(44px, 5.2vmin, 64px);
+  height: clamp(44px, 5.2vmin, 64px);
+}
+
+.w-marienkaefer.fliegt-los { animation: wimmel-marienkaefer-flug 1.1s ease-in-out; }
+
+@keyframes wimmel-marienkaefer-flug {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  30% { transform: translate(calc(-50% + 34px), calc(-50% - 30px)) scale(0.9) rotate(20deg); }
+  60% { transform: translate(calc(-50% + 54px), calc(-50% - 6px)) scale(0.85) rotate(-14deg); }
+  85% { transform: translate(calc(-50% + 10px), calc(-50% - 10px)) scale(1) rotate(6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w-sonne.strahlt,
+  .w-wolke.zieht-vorbei,
+  .w-vogelhaus.fliegt .w-vogel,
+  .w-apfel.faellt,
+  .schaukel-sitz.schwingt,
+  .w-biene.summt,
+  .w-maulwurfshuegel.guckt .w-maulwurf-tier,
+  .w-frosch.huepft,
+  .w-marienkaefer.fliegt-los {
+    animation: none;
+  }
+}
