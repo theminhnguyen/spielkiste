@@ -76,13 +76,21 @@ export function unlockAudio(): void {
 
     if (c.state === 'running') {
       unlocked = true;
-    } else if (c.state === 'suspended') {
+    } else if (c.state !== 'closed') {
+      // Safari/WebKit auf iOS kennt neben "suspended" noch den
+      // nicht-standardisierten Zustand "interrupted" (Audio-Session von
+      // außen unterbrochen, z. B. beim ersten Erzeugen im Hintergrund
+      // eines Gesten-Handlers). Der frühere Code rief resume() nur bei
+      // "suspended" auf — "interrupted" landete im Fehlerzweig und wurde
+      // nie wieder verlassen, ganz gleich wie oft man tippte. resume()
+      // hebt beide Zustände auf, daher hier bewusst nicht auf den exakten
+      // Zustandsnamen prüfen, sondern auf alles außer "running"/"closed".
       c.resume()
         .then(() => {
           if (c.state === 'running') unlocked = true;
         })
         .catch((err) => {
-          lastError = `resume() abgelehnt: ${err instanceof Error ? err.message : String(err)}`;
+          lastError = `resume() abgelehnt (Zustand war "${c.state}"): ${err instanceof Error ? err.message : String(err)}`;
           /* nächster Tipp versucht es erneut, siehe oben */
         });
     } else {
