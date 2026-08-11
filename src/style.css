@@ -1142,6 +1142,37 @@ body {
   opacity: 0.92;
 }
 
+/* Aufräumen-Knopf */
+
+.steine-clear {
+  position: absolute;
+  bottom: calc(var(--safe-b) + 20px);
+  right: calc(var(--safe-r) + 20px);
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #fffaf2;
+  border: none;
+  box-shadow: 0 8px 18px rgba(60, 90, 70, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 150ms ease-out;
+  z-index: 5;
+}
+
+.steine-clear:active {
+  transform: scale(0.92);
+}
+
+/* Türme fliegen beim Aufräumen sanft nach rechts aus dem Bild */
+.steine-tower.wegfegen {
+  transition: transform 480ms cubic-bezier(0.42, 0, 0.58, 1), opacity 420ms ease-in;
+  transform: translateX(calc(-50% + 140vw)) translateY(-40px) rotate(50deg);
+  opacity: 0;
+}
+
 /* ---------- Seifenblasen ---------- */
 
 .blasen-stage {

@@ -98,6 +98,13 @@ function mount(container: HTMLElement): void {
         `,
         ).join('')}
       </div>
+      <button class="steine-clear" id="steineClear" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="30" height="30">
+          <line x1="38" y1="6" x2="20" y2="24" stroke="#a9835e" stroke-width="4" stroke-linecap="round"/>
+          <path d="M20 24 L8 30 A20 20 0 0 0 30 40 Z" fill="#e0a458" stroke="#8a7255" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M12 32 L16 39 M18 28 L22 36 M24 26 L27 34" stroke="#fdf6ea" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
   `;
 
@@ -106,6 +113,7 @@ function mount(container: HTMLElement): void {
 
   renderTowers();
   setupShelf(container);
+  setupClear(container);
 }
 
 function renderTowers(): void {
@@ -133,13 +141,22 @@ function renderTowers(): void {
   });
 }
 
+/**
+ * Bewegungsschwelle, ab der eine Berührung als "kräftiges Wischen" statt als
+ * Tipp zählt. Bewusst OHNE Zeit-Bedingung: eine frühere Version verlangte
+ * zusätzlich unter 600ms, aber eine reale Wisch-Geste (Finger oder Maus) ist
+ * oft langsamer — dann griff weder die Wisch- noch die Tipp-Erkennung (die nur
+ * bei <12px Bewegung reagierte), und der Turm wirkte tot. Jetzt gilt einfach:
+ * jede Berührung landet IMMER in genau einem der beiden Fälle, nie dazwischen.
+ */
+const SWIPE_DISTANCE = 45;
+
 function setupTowerInteraction(towerEl: HTMLElement, towerIndex: number): void {
   // towerEl wird bei jedem renderTowers() komplett neu erzeugt (innerHTML-Reset),
   // daher hier bewusst kein Eintrag im modul-weiten cleanup-Array — sonst würde
   // die Liste bei häufigem Spielen unbegrenzt mit toten Referenzen wachsen.
   let startX = 0;
   let startY = 0;
-  let startT = 0;
   let moved = 0;
 
   towerEl.addEventListener('pointerdown', (e) => {
@@ -148,7 +165,6 @@ function setupTowerInteraction(towerEl: HTMLElement, towerIndex: number): void {
     pe.stopPropagation();
     startX = pe.clientX;
     startY = pe.clientY;
-    startT = performance.now();
     moved = 0;
     try {
       towerEl.setPointerCapture(pe.pointerId);
@@ -169,14 +185,14 @@ function setupTowerInteraction(towerEl: HTMLElement, towerIndex: number): void {
     } catch {
       /* bereits freigegeben */
     }
-    const dt = performance.now() - startT;
     const tower = towers[towerIndex];
     if (!tower) return;
 
-    const isSwipe = moved > 45 && dt < 600;
+    const isSwipe = moved > SWIPE_DISTANCE;
 
     if (tower.toppled) {
-      if (moved < 12) {
+      // Auch zum Wiederaufrichten reicht jede Berührung, die kein Wisch ist.
+      if (!isSwipe) {
         tower.toppled = false;
         persist();
         renderTowers();
@@ -191,7 +207,7 @@ function setupTowerInteraction(towerEl: HTMLElement, towerIndex: number): void {
       persist();
       renderTowers();
       playWhoosh();
-    } else if (moved < 12) {
+    } else {
       giggleWobble(towerEl);
     }
   });
@@ -308,6 +324,41 @@ function dropBlock(def: BlockDef, clientX: number, clientY: number): void {
 
   persist();
   renderTowers();
+}
+
+/**
+ * Regal aufräumen: alle Türme fliegen mit sanfter Verzögerung nach rechts aus
+ * dem Bild, dann wird der Zustand geleert. Keine Bestätigung nötig — analog
+ * zum "Neues Blatt"-Knopf beim Malen: ein Tipp, sofort ein neuer Anfang.
+ * Verhindert, dass sich am Boden unbegrenzt viele Steine ansammeln.
+ */
+function setupClear(root: HTMLElement): void {
+  const btn = root.querySelector<HTMLButtonElement>('#steineClear')!;
+  on(btn, 'pointerdown', (e) => {
+    e.preventDefault();
+    if (towers.length === 0) return;
+    clearAllTowers();
+  });
+}
+
+function clearAllTowers(): void {
+  if (!towersLayer) return;
+  const towerEls = [...towersLayer.querySelectorAll<HTMLElement>('.steine-tower')];
+  towerEls.forEach((el, i) => {
+    el.style.transitionDelay = `${i * 45}ms`;
+    void el.offsetWidth;
+    el.classList.add('wegfegen');
+  });
+  playWhoosh();
+
+  window.setTimeout(
+    () => {
+      towers = [];
+      persist();
+      renderTowers();
+    },
+    500 + towerEls.length * 45,
+  );
 }
 
 function playThud(height: number): void {
