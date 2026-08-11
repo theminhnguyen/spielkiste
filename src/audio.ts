@@ -1,6 +1,7 @@
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let unlocked = false;
+let silentAudioEl: HTMLAudioElement | null = null;
 
 function ensureContext(): AudioContext | null {
   if (ctx) return ctx;
@@ -13,6 +14,38 @@ function ensureContext(): AudioContext | null {
   return ctx;
 }
 
+/**
+ * Winziges lautloses WAV (1 Sample) als Data-URL — selbst erzeugt, keine
+ * externe Datei. Wird ausschließlich gebraucht, um Safari auf iOS/iPadOS
+ * dazu zu bringen, die "playback"-Audio-Session-Kategorie zu aktivieren
+ * (siehe unlockAudio()).
+ */
+function createSilentWavDataUrl(): string {
+  const bytes = new Uint8Array(45);
+  const view = new DataView(bytes.buffer);
+  const writeStr = (offset: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i));
+  };
+  writeStr(0, 'RIFF');
+  view.setUint32(4, 37, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // 1 Kanal
+  view.setUint32(24, 8000, true); // Sample-Rate
+  view.setUint32(28, 8000, true); // Byte-Rate
+  view.setUint16(32, 1, true); // Block-Align
+  view.setUint16(34, 8, true); // Bits pro Sample
+  writeStr(36, 'data');
+  view.setUint32(40, 1, true);
+  view.setUint8(44, 128); // ein stilles Sample (Mittelwert bei 8-Bit unsigned)
+
+  let binary = '';
+  bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  return `data:audio/wav;base64,${btoa(binary)}`;
+}
+
 export function unlockAudio(): void {
   if (unlocked) return;
   const c = ensureContext();
@@ -20,6 +53,20 @@ export function unlockAudio(): void {
   if (c.state === 'suspended') {
     c.resume().catch(() => {});
   }
+
+  // iOS/iPadOS Safari dämpft Web-Audio-Töne über den physischen
+  // Stumm-Schalter, solange die Seite noch kein natives <audio>/<video>
+  // abgespielt hat (Browser nutzt sonst die "ambient" Audio-Session-
+  // Kategorie). Ein kurzes, lautloses <audio>-Element aus derselben
+  // Touch-Geste heraus abzuspielen wechselt die Kategorie auf "playback" —
+  // danach ignoriert auch der Web-Audio-Ton den Stumm-Schalter.
+  if (!silentAudioEl) {
+    silentAudioEl = new Audio(createSilentWavDataUrl());
+    silentAudioEl.volume = 0.01;
+    silentAudioEl.setAttribute('playsinline', 'true');
+  }
+  silentAudioEl.play().catch(() => {});
+
   unlocked = true;
 }
 
