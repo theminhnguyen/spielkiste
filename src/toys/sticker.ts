@@ -94,6 +94,9 @@ let stageEl: HTMLElement | null = null;
 let sceneEl: HTMLElement | null = null;
 let trayEl: HTMLElement | null = null;
 let cleanup: Array<() => void> = [];
+let resizeObserver: ResizeObserver | null = null;
+/** Index des gerade gezogenen Stickers — beim Resize nicht neu positionieren. */
+let draggingIndex: number | null = null;
 
 function on(el: EventTarget, type: string, handler: EventListenerOrEventListenerObject): void {
   el.addEventListener(type, handler);
@@ -146,6 +149,36 @@ function mount(container: HTMLElement): void {
   trayEl.querySelectorAll<HTMLElement>('.tray-item').forEach((item) => {
     on(item, 'pointerdown', (e) => startDragFromTray(e as PointerEvent, item));
   });
+
+  // Positionen hängen an einer per JS gemessenen Pixelgröße der Szene (statt
+  // an CSS-Prozentwerten), damit das Ziehen rein über transform läuft. Steht
+  // die Szene beim allerersten Öffnen noch nicht mit ihrer echten Größe im
+  // Layout (oder ändert sie sich später durch Drehen/Split View), holt der
+  // ResizeObserver die Sticker aus der Ecke bzw. rückt sie neu ein.
+  resizeObserver = new ResizeObserver(() => {
+    const layer = document.getElementById('stickerPlatziert');
+    if (!layer) return;
+    layer.querySelectorAll<HTMLElement>('.sticker').forEach((el) => {
+      const index = Number(el.dataset.index);
+      if (index === draggingIndex) return;
+      const p = placed[index];
+      if (p) applyStickerPosition(el, p.xPct, p.yPct);
+    });
+  });
+  resizeObserver.observe(sceneEl);
+}
+
+/**
+ * Positioniert einen Sticker ausschließlich über --tx/--ty im `transform`
+ * (kein left/top) — damit löst jede Bewegung nur Compositing aus, keinen
+ * Layout-Reflow. Wichtig bei schnellem Ziehen, siehe applyTransform in
+ * kleckse.ts für dasselbe Muster.
+ */
+function applyStickerPosition(el: HTMLElement, xPct: number, yPct: number): void {
+  if (!sceneEl) return;
+  const r = sceneEl.getBoundingClientRect();
+  el.style.setProperty('--tx', `${((xPct / 100) * r.width).toFixed(1)}px`);
+  el.style.setProperty('--ty', `${((yPct / 100) * r.height).toFixed(1)}px`);
 }
 
 function renderPlaced(): void {
@@ -159,8 +192,7 @@ function renderPlaced(): void {
     el.dataset.index = String(index);
     el.style.width = `${art.size}px`;
     el.style.height = `${art.size}px`;
-    el.style.left = `${p.xPct}%`;
-    el.style.top = `${p.yPct}%`;
+    applyStickerPosition(el, p.xPct, p.yPct);
     el.style.setProperty('--rot', `${p.rot}deg`);
     el.innerHTML = art.svg;
     layer.appendChild(el);
@@ -182,6 +214,7 @@ function attachPlacedHandlers(el: HTMLElement, index: number): void {
     e.preventDefault();
     e.stopPropagation();
     dragging = true;
+    draggingIndex = index;
     moved = 0;
     startX = e.clientX;
     startY = e.clientY;
@@ -201,13 +234,13 @@ function attachPlacedHandlers(el: HTMLElement, index: number): void {
     if (!p) return;
     p.xPct = clamp(((e.clientX - r.left) / r.width) * 100, 2, 98);
     p.yPct = clamp(((e.clientY - r.top) / r.height) * 100, 2, 98);
-    el.style.left = `${p.xPct}%`;
-    el.style.top = `${p.yPct}%`;
+    applyStickerPosition(el, p.xPct, p.yPct);
   });
 
   const end = (e: PointerEvent) => {
     if (!dragging) return;
     dragging = false;
+    draggingIndex = null;
     el.classList.remove('greift');
     try {
       el.releasePointerCapture(e.pointerId);
@@ -306,8 +339,8 @@ function startDragFromTray(e: PointerEvent, item: HTMLElement): void {
 
   const move = (clientX: number, clientY: number) => {
     const r = stageEl!.getBoundingClientRect();
-    ghost.style.left = `${clientX - r.left}px`;
-    ghost.style.top = `${clientY - r.top}px`;
+    ghost.style.setProperty('--tx', `${(clientX - r.left).toFixed(1)}px`);
+    ghost.style.setProperty('--ty', `${(clientY - r.top).toFixed(1)}px`);
   };
   move(e.clientX, e.clientY);
   playClick(560);
@@ -364,6 +397,9 @@ function dropSticker(art: StickerArt, clientX: number, clientY: number): void {
 function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
+  resizeObserver?.disconnect();
+  resizeObserver = null;
+  draggingIndex = null;
   placed = [];
   stageEl = null;
   sceneEl = null;

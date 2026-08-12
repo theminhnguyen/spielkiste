@@ -49,6 +49,12 @@ const defaultState: NachtState = { lampeAn: true, schlaeft: [false, false, false
 
 let state: NachtState = { ...defaultState };
 let cleanup: Array<() => void> = [];
+let timers: number[] = [];
+
+function later(fn: () => void, ms: number): void {
+  const id = window.setTimeout(fn, ms);
+  timers.push(id);
+}
 
 function on(el: EventTarget, type: string, handler: EventListenerOrEventListenerObject): void {
   el.addEventListener(type, handler);
@@ -139,12 +145,12 @@ function setupTiere(root: HTMLElement): void {
       if (einschlafen) {
         playWhoosh();
         playTone({ freq: 392, duration: 0.2, attack: 0.01, release: 0.4, type: 'sine', gain: 0.16 });
-        window.setTimeout(() => {
+        later(() => {
           playTone({ freq: 294, duration: 0.3, attack: 0.01, release: 0.5, type: 'sine', gain: 0.14 });
         }, 220);
       } else {
         playTone({ freq: 440, duration: 0.1, attack: 0.005, release: 0.2, type: 'triangle', gain: 0.2 });
-        window.setTimeout(() => {
+        later(() => {
           playTone({ freq: 587.33, duration: 0.16, attack: 0.005, release: 0.25, type: 'triangle', gain: 0.2 });
         }, 110);
       }
@@ -156,6 +162,8 @@ function setupTiere(root: HTMLElement): void {
 function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
+  timers.forEach((id) => window.clearTimeout(id));
+  timers = [];
   state = { ...defaultState, schlaeft: [...defaultState.schlaeft] };
 }
 
