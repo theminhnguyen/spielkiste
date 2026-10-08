@@ -1,8 +1,14 @@
 # Spielkiste — Projektregeln für Claude
 
 Dies ist eine Offline-PWA-Spiel-App für ein 2-jähriges Kind (iPad).
-**Der komplette Arbeitsauftrag steht in [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md)**
-— zuerst lesen, dann Phase für Phase abarbeiten.
+
+**Stand (12.08.2026, v1.0.6): fertig.** Alle Phasen aus
+[docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md) sind abgeschlossen, live auf
+https://theminhnguyen.github.io/spielkiste/. Der Build-Auftrag ist damit nur noch
+Hintergrund — neue Arbeit kommt als konkreter Wunsch des Nutzers, nicht als „nächste Phase".
+9 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen, Formen-Sortierer, Seifenblasen, Putzen,
+Sticker-Szene, Wimmelbild, Gute-Nacht-Szene); die Stapelsteine wurden auf Wunsch entfernt.
+Eltern-Anleitung: [ELTERN-ANLEITUNG.md](ELTERN-ANLEITUNG.md).
 Produkt- und Designentscheidungen stehen in [docs/PLAN.md](docs/PLAN.md).
 
 ## Wichtigste Regeln (Kurzfassung)
@@ -24,6 +30,21 @@ Produkt- und Designentscheidungen stehen in [docs/PLAN.md](docs/PLAN.md).
    (Faktor ~15 Streuung). FPS-Aussagen nur strukturell begründen (wenige DOM-Nodes,
    CSS-Transforms statt Layout, requestAnimationFrame-Disziplin); die echte Messung
    macht der Nutzer am iPad.
+8. **Version hochzählen** — bei jeder Änderung `version` in `package.json` erhöhen;
+   sie steht unten im Elternbereich, so sieht der Nutzer am iPad, ob das Update da ist.
+
+## Fallen, die schon zugeschlagen haben
+
+- **Ton auf dem iPad stumm:** WebKit kennt neben `suspended` den Zustand `interrupted`.
+  `resume()` bei jedem Zustand außer `running`/`closed` versuchen und „entsperrt" erst
+  merken, wenn der Context wirklich läuft. Die Ton-Diagnose im Elternbereich zeigt den
+  Zustand — bei Ton-Problemen den Nutzer bitten, den Text abzuschreiben.
+- **Klang-Kleckse in der Ecke:** Positionen nie nur einmal beim Mount aus der gemessenen
+  Bühnengröße setzen (kann 0×0 sein) → `ResizeObserver`.
+- **`requestAnimationFrame` feuert im versteckten Preview-Tab nicht zuverlässig** →
+  Übergänge per Klassen-Toggle nach `void el.offsetWidth` statt rAF.
+- **Wisch-Gesten:** Zeit- und Distanz-Schwellen dürfen keine tote Zone zwischen „Tipp"
+  und „Wisch" lassen; mit echten Drag-Gesten testen, nicht mit synthetischen Events.
 
 ## Befehle
 
