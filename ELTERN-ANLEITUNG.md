@@ -44,6 +44,10 @@ Besonders wichtig bei den Patsch-Spielen (Trommeln, Bälle, Laubhaufen): Mit vie
 oder fünf Fingern gleichzeitig löst das iPad sonst eigene Gesten aus (zum
 Home-Bildschirm, App wechseln). Im Geführten Zugriff sind diese Gesten gesperrt.
 
+Der **Zurück-Pfeil** oben links reagiert nur auf ein kurzes Antippen mit einem
+Finger — ein Patscher mit der ganzen Hand, der zufällig auch den Pfeil trifft,
+holt das Kind nicht aus dem Spiel.
+
 ## 5. Die zwölf Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,

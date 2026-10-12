@@ -159,8 +159,13 @@ body {
   animation: pulse-soft 2.6s ease-in-out infinite;
 }
 
-.back-button:active {
-  transform: scale(0.92);
+/* Sofortige Rückmeldung beim Berühren — zurück geht es erst beim Loslassen
+   (siehe Zurück-Knopf in main.ts). Die Klasse statt :active, weil die
+   Puls-Animation ein :active-Transform sonst überdecken würde. */
+.back-button.visible.gedrueckt {
+  animation: none;
+  transform: scale(0.9);
+  transition: transform 120ms ease-out;
 }
 
 @keyframes pulse-soft {

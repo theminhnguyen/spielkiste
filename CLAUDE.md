@@ -2,7 +2,7 @@
 
 Dies ist eine Offline-PWA-Spiel-App für ein 2-jähriges Kind (iPad).
 
-**Stand (12.10.2026, v1.1.0): fertig.** Alle Phasen aus
+**Stand (12.10.2026, v1.1.1): fertig.** Alle Phasen aus
 [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md) sind abgeschlossen, live auf
 https://theminhnguyen.github.io/spielkiste/. Der Build-Auftrag ist damit nur noch
 Hintergrund — neue Arbeit kommt als konkreter Wunsch des Nutzers, nicht als „nächste Phase".

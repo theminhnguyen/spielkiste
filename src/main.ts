@@ -131,10 +131,66 @@ function closeToy(): void {
   }, 450);
 }
 
+/* ---------- Zurück-Knopf: nur ein bewusster Einzelfinger-Tipp ---------- */
+
+// Beim Patschen mit der ganzen Hand landet leicht ein Finger auf dem Knopf.
+// Deshalb gilt nur ein kurzer Tipp mit genau einem Finger, losgelassen auf
+// dem Knopf. Kommt kurz davor oder währenddessen ein weiterer Finger irgendwo
+// auf den Bildschirm, ist es ein Patscher und zählt nicht. Bewusst über
+// Zeitfenster statt über eine Liste aktiver Finger gelöst: Ein verlorenes
+// pointerup könnte den Knopf sonst dauerhaft blockieren.
+const BACK_MULTI_WINDOW_MS = 150;
+const BACK_MAX_PRESS_MS = 1200;
+const BACK_MAX_MOVE_PX = 40;
+
+/** Der Finger, der vor dem aktuellen aufgesetzt wurde (egal wo). */
+let prevPointerDown = { id: -1, at: -Infinity };
+let lastPointerDown = { id: -1, at: -Infinity };
+let backPress: { id: number; at: number; x: number; y: number; valid: boolean } | null = null;
+
+// Capture-Phase: läuft vor jedem anderen Handler, auch vor dem des Knopfs.
+document.addEventListener(
+  'pointerdown',
+  (e) => {
+    if (backPress && e.pointerId !== backPress.id) backPress.valid = false;
+    prevPointerDown = lastPointerDown;
+    lastPointerDown = { id: e.pointerId, at: performance.now() };
+  },
+  { capture: true },
+);
+
+function releaseBackPress(): void {
+  backPress = null;
+  backButtonEl.classList.remove('gedrueckt');
+}
+
 backButtonEl.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  closeToy();
+  const now = performance.now();
+  const otherFingerJustNow = prevPointerDown.id !== e.pointerId && now - prevPointerDown.at < BACK_MULTI_WINDOW_MS;
+  // Liegt schon ein anderer Finger auf dem Knopf, zählt der zweite auch nicht.
+  const alreadyPressed = backPress !== null;
+  backPress = { id: e.pointerId, at: now, x: e.clientX, y: e.clientY, valid: !otherFingerJustNow && !alreadyPressed };
+  backButtonEl.classList.add('gedrueckt');
+  try {
+    backButtonEl.setPointerCapture(e.pointerId);
+  } catch {
+    /* Pointer bereits inaktiv */
+  }
 });
+
+backButtonEl.addEventListener('pointerup', (e) => {
+  const press = backPress;
+  releaseBackPress();
+  if (!press || press.id !== e.pointerId || !press.valid) return;
+  const r = backButtonEl.getBoundingClientRect();
+  const onButton = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  const quick = performance.now() - press.at < BACK_MAX_PRESS_MS;
+  const still = Math.hypot(e.clientX - press.x, e.clientY - press.y) < BACK_MAX_MOVE_PX;
+  if (onButton && quick && still) closeToy();
+});
+
+backButtonEl.addEventListener('pointercancel', releaseBackPress);
 
 /* ---------- Eltern-Gate: 3 Sekunden halten ---------- */
 
