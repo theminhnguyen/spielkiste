@@ -2,7 +2,7 @@
 
 Dies ist eine Offline-PWA-Spiel-App für ein 2-jähriges Kind (iPad).
 
-**Stand (12.10.2026, v1.1.2): fertig.** Alle Phasen aus
+**Stand (12.10.2026, v1.1.3): fertig.** Alle Phasen aus
 [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md) sind abgeschlossen, live auf
 https://theminhnguyen.github.io/spielkiste/. Der Build-Auftrag ist damit nur noch
 Hintergrund — neue Arbeit kommt als konkreter Wunsch des Nutzers, nicht als „nächste Phase".
@@ -48,6 +48,12 @@ Produkt- und Designentscheidungen stehen in [docs/PLAN.md](docs/PLAN.md).
   weiteren Resize aus, der Fehler bliebe die ganze Sitzung. Elemente **außerhalb** der
   Spielansicht (Zurück-Knopf) zoomen nicht mit — deren Position über `offsetLeft/-Top`
   bestimmen, nicht über eine Zoom-Rückrechnung.
+- **Viele per JS bewegte Elemente ruckeln auf dem iPad, in Chrome nicht:** Safari legt für
+  per JS gesetzte 2D-Transforms keine eigene GPU-Ebene an und malt sie jedes Bild neu — mit
+  `filter: drop-shadow` und SVG-`<use>` bei 78 Laubblättern so teuer, dass sie scheinbar
+  stillstanden und der Zurück-Knopf Tipps verlor (v1.1.3). Regel: per JS animierte Elemente
+  `will-change: transform`, kein `filter` darauf (Schatten per `box-shadow` oder weglassen),
+  kein `<use>`. Die Chrome-Vorschau zeigt so etwas nicht — strukturell prüfen.
 - **Physik-Spiele (Bälle, Laub) im Preview-Tab:** Ist der Tab verdeckt, steht
   `requestAnimationFrame` still. Für Logik-Tests in der Seite `requestAnimationFrame` durch
   `setTimeout(…, 16)` ersetzen (nur im Test, nicht im Code).

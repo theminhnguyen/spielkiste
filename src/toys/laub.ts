@@ -12,7 +12,7 @@ const tileIcon = `
 </svg>`;
 
 const BLATT_FARBEN = ['#e0a458', '#d9824f', '#f4c86b', '#c96f5a', '#b8a05a', '#e8b06a'];
-const BLATT_FORMEN = ['blatt-ahorn', 'blatt-oval', 'blatt-rund'];
+const BLATT_FORMEN = ['ahorn', 'oval', 'rund'];
 
 /** Oberkante des Bodens als Anteil der Bühnenhöhe. */
 const GROUND = 0.8;
@@ -113,23 +113,16 @@ function later(fn: () => void, ms: number): number {
   return id;
 }
 
-const SYMBOLE = `
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="blatt-ahorn" viewBox="0 0 100 100">
-      <path d="M50 4 L58 28 L78 16 L72 40 L95 42 L77 57 L86 76 L61 68 L55 88 L50 92 L45 88 L39 68 L14 76 L23 57 L5 42 L28 40 L22 16 L42 28 Z" fill="currentColor"/>
-      <path d="M50 98 L50 20 M50 60 L24 46 M50 60 L76 46" stroke="rgba(90,55,25,0.35)" stroke-width="3" fill="none" stroke-linecap="round"/>
-    </symbol>
-    <symbol id="blatt-oval" viewBox="0 0 100 100">
-      <path d="M50 4 C80 24 86 62 50 92 C14 62 20 24 50 4 Z" fill="currentColor"/>
-      <path d="M50 98 L50 12 M50 40 L34 28 M50 40 L66 28 M50 60 L32 48 M50 60 L68 48" stroke="rgba(90,55,25,0.35)" stroke-width="3" fill="none" stroke-linecap="round"/>
-    </symbol>
-    <symbol id="blatt-rund" viewBox="0 0 100 100">
-      <path d="M50 8 C82 10 94 46 72 74 C62 86 54 90 50 92 C46 90 38 86 28 74 C6 46 18 10 50 8 Z" fill="currentColor"/>
-      <path d="M50 98 L50 18 M50 50 L28 36 M50 50 L72 36" stroke="rgba(90,55,25,0.35)" stroke-width="3" fill="none" stroke-linecap="round"/>
-    </symbol>
-  </defs>
-</svg>`;
+/**
+ * Blattformen als direkt eingebettete Pfade (fill = currentColor, Farbe kommt
+ * vom Blatt-Element). Bewusst ohne <symbol>/<use>: Safari baut für jedes
+ * <use> einen eigenen Schattenbaum auf — bei 78 Blättern unnötig teuer.
+ */
+const BLATT_PFADE: Record<string, string> = {
+  ahorn: `<path d="M50 4 L58 28 L78 16 L72 40 L95 42 L77 57 L86 76 L61 68 L55 88 L50 92 L45 88 L39 68 L14 76 L23 57 L5 42 L28 40 L22 16 L42 28 Z" fill="currentColor"/><path d="M50 98 L50 20 M50 60 L24 46 M50 60 L76 46" stroke="rgba(90,55,25,0.35)" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  oval: `<path d="M50 4 C80 24 86 62 50 92 C14 62 20 24 50 4 Z" fill="currentColor"/><path d="M50 98 L50 12 M50 40 L34 28 M50 40 L66 28 M50 60 L32 48 M50 60 L68 48" stroke="rgba(90,55,25,0.35)" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  rund: `<path d="M50 8 C82 10 94 46 72 74 C62 86 54 90 50 92 C46 90 38 86 28 74 C6 46 18 10 50 8 Z" fill="currentColor"/><path d="M50 98 L50 18 M50 50 L28 36 M50 50 L72 36" stroke="rgba(90,55,25,0.35)" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+};
 
 const BAUM_SVG = `
 <svg viewBox="0 0 200 300" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
@@ -169,7 +162,6 @@ function mount(container: HTMLElement): void {
 
   container.innerHTML = `
     <div class="laub-stage" id="laubStage">
-      ${SYMBOLE}
       <div class="laub-himmel"></div>
       <div class="laub-huegel"></div>
       <div class="laub-baum">${BAUM_SVG}</div>
@@ -190,7 +182,7 @@ function mount(container: HTMLElement): void {
     const el = document.createElement('div');
     el.className = 'laub-blatt';
     el.style.color = BLATT_FARBEN[i % BLATT_FARBEN.length];
-    el.innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><use href="#${BLATT_FORMEN[i % BLATT_FORMEN.length]}"/></svg>`;
+    el.innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%">${BLATT_PFADE[BLATT_FORMEN[i % BLATT_FORMEN.length]]}</svg>`;
     blaetterEl.appendChild(el);
     leaves.push({
       i,
@@ -546,9 +538,13 @@ function wake(): void {
 }
 
 function frame(t: number): void {
-  const dt = Math.min(0.033, Math.max(0.001, (t - lastFrameT) / 1000));
+  // Bei langsamen Bildern (Stromsparmodus, ausgelastetes Gerät) nicht in
+  // Zeitlupe verfallen: bis 0,1 s pro Bild aufholen, in kleinen Teilschritten.
+  // Erst darüber (App war im Hintergrund) wird gekappt, damit nichts springt.
+  const elapsed = Math.min(0.1, Math.max(0.001, (t - lastFrameT) / 1000));
   lastFrameT = t;
-  step(dt);
+  const substeps = Math.ceil(elapsed / 0.02);
+  for (let k = 0; k < substeps; k++) step(elapsed / substeps);
   render();
 
   // Ein ruhig aufliegender Finger hält die Schleife nicht wach — Bewegungen

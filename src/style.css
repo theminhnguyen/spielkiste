@@ -2464,13 +2464,19 @@ body {
   100% { opacity: 0; transform: scale(1.5); }
 }
 
+/* Jeder Ball (und sein drehendes Muster) bekommt eine eigene GPU-Ebene
+   (will-change): Die Physik verschiebt ihn per JS in jedem Bild — ohne eigene
+   Ebene malt Safari ihn dabei jedes Mal neu. Schatten als box-shadow statt
+   filter: Ein Filter würde über dem drehenden Muster ebenfalls bei jedem
+   Bild neu berechnet. */
 .ball {
   position: absolute;
   left: 0;
   top: 0;
   border-radius: 50%;
   opacity: 0;
-  filter: drop-shadow(0 10px 10px rgba(90, 70, 40, 0.22));
+  box-shadow: 0 10px 16px rgba(90, 70, 40, 0.2);
+  will-change: transform;
   transition: opacity 300ms ease-out;
 }
 
@@ -2480,6 +2486,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  will-change: transform;
   background:
     radial-gradient(circle at 50% 50%, #fdf6ea 0 13%, transparent 14%),
     conic-gradient(var(--c1) 0deg 60deg, var(--c2) 60deg 120deg, var(--c3) 120deg 180deg,
@@ -2565,13 +2572,18 @@ body {
   transition: opacity 300ms ease-out;
 }
 
+/* Eigene GPU-Ebene pro Blatt (will-change) und bewusst KEIN filter: Die
+   Blätter werden per JS in jedem Bild verschoben und gedreht. Mit
+   drop-shadow-Filter und ohne eigene Ebene hat Safari auf dem iPad alle
+   fliegenden Blätter in jedem Bild neu gemalt — so langsam, dass die
+   Blätter scheinbar stillstanden und der Zurück-Knopf Tipps verlor. */
 .laub-blatt {
   position: absolute;
   left: 0;
   top: 0;
   opacity: 0;
   pointer-events: none;
-  filter: drop-shadow(0 2px 2px rgba(90, 60, 30, 0.18));
+  will-change: transform;
   transition: opacity 300ms ease-out;
 }
 

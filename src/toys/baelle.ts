@@ -439,11 +439,14 @@ function wake(): void {
 }
 
 function frame(t: number): void {
-  // Begrenztes dt: Nach einer Pause (App im Hintergrund) springt nichts.
-  const dt = Math.min(0.033, Math.max(0.001, (t - lastFrameT) / 1000));
+  // Bei langsamen Bildern nicht in Zeitlupe verfallen: bis 0,1 s pro Bild
+  // aufholen, in Teilschritten von höchstens ~17 ms (sonst könnten schnelle
+  // Bälle durcheinander hindurchtunneln). Erst darüber (App war im
+  // Hintergrund) wird gekappt, damit nichts springt.
+  const elapsed = Math.min(0.1, Math.max(0.001, (t - lastFrameT) / 1000));
   lastFrameT = t;
-  const substeps = dt > 0.017 ? 2 : 1;
-  for (let i = 0; i < substeps; i++) step(dt / substeps);
+  const substeps = Math.ceil(elapsed / 0.017);
+  for (let i = 0; i < substeps; i++) step(elapsed / substeps);
   render(false);
 
   // Ein ruhig aufliegender Finger hält die Schleife bewusst nicht wach —

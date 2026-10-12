@@ -144,6 +144,10 @@ const BACK_MAX_PRESS_MS = 1200;
 const BACK_MAX_MOVE_PX = 40;
 
 /** Der Finger, der vor dem aktuellen aufgesetzt wurde (egal wo). */
+// Alle Zeiten sind Event-Zeitstempel (e.timeStamp = wann der Finger das Glas
+// berührt hat), nicht der Zeitpunkt, zu dem der Handler läuft: Ist Safari
+// gerade mit Zeichnen beschäftigt, kommt das Loslassen verspätet an — ein
+// kurzer Tipp sähe sonst wie langes Drücken aus und würde verworfen.
 let prevPointerDown = { id: -1, at: -Infinity };
 let lastPointerDown = { id: -1, at: -Infinity };
 let backPress: { id: number; at: number; x: number; y: number; valid: boolean } | null = null;
@@ -154,7 +158,7 @@ document.addEventListener(
   (e) => {
     if (backPress && e.pointerId !== backPress.id) backPress.valid = false;
     prevPointerDown = lastPointerDown;
-    lastPointerDown = { id: e.pointerId, at: performance.now() };
+    lastPointerDown = { id: e.pointerId, at: e.timeStamp };
   },
   { capture: true },
 );
@@ -166,7 +170,7 @@ function releaseBackPress(): void {
 
 backButtonEl.addEventListener('pointerdown', (e) => {
   e.preventDefault();
-  const now = performance.now();
+  const now = e.timeStamp;
   const otherFingerJustNow = prevPointerDown.id !== e.pointerId && now - prevPointerDown.at < BACK_MULTI_WINDOW_MS;
   // Liegt schon ein anderer Finger auf dem Knopf, zählt der zweite auch nicht.
   const alreadyPressed = backPress !== null;
@@ -185,7 +189,7 @@ backButtonEl.addEventListener('pointerup', (e) => {
   if (!press || press.id !== e.pointerId || !press.valid) return;
   const r = backButtonEl.getBoundingClientRect();
   const onButton = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-  const quick = performance.now() - press.at < BACK_MAX_PRESS_MS;
+  const quick = e.timeStamp - press.at < BACK_MAX_PRESS_MS;
   const still = Math.hypot(e.clientX - press.x, e.clientY - press.y) < BACK_MAX_MOVE_PX;
   if (onButton && quick && still) closeToy();
 });
