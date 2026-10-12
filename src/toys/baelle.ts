@@ -83,7 +83,7 @@ let stageEl: HTMLElement | null = null;
 let wellenEl: HTMLElement | null = null;
 let balls: Ball[] = [];
 let cleanup: Array<() => void> = [];
-let timers: number[] = [];
+let timers = new Set<number>();
 let resizeObserver: ResizeObserver | null = null;
 let rafId: number | null = null;
 let lastFrameT = 0;
@@ -103,9 +103,17 @@ function on(el: EventTarget, type: string, handler: EventListenerOrEventListener
   cleanup.push(() => el.removeEventListener(type, handler));
 }
 
+/**
+ * Merkt sich laufende Timer fürs Aufräumen beim Verlassen — und vergisst sie
+ * wieder, sobald sie gefeuert haben. Sonst wüchse die Liste bei jedem Schlag
+ * und bliebe beim Dauerhämmern über die ganze Sitzung liegen.
+ */
 function later(fn: () => void, ms: number): void {
-  const id = window.setTimeout(fn, ms);
-  timers.push(id);
+  const id = window.setTimeout(() => {
+    timers.delete(id);
+    fn();
+  }, ms);
+  timers.add(id);
 }
 
 function persist(): void {
@@ -117,7 +125,7 @@ function persist(): void {
 
 function mount(container: HTMLElement): void {
   cleanup = [];
-  timers = [];
+  timers = new Set();
   hands = new Map();
   placed = false;
   wellenCount = 0;
@@ -229,13 +237,33 @@ function onResize(): void {
  */
 function measureObstacle(): void {
   const back = document.querySelector<HTMLElement>('.back-button');
-  if (!back || back.offsetWidth === 0) {
+  if (!stageEl || !back || back.offsetWidth === 0) {
     obstacle = null;
     return;
   }
-  const r = back.getBoundingClientRect();
-  const c = toStage(r.left + r.width / 2, r.top + r.height / 2);
-  obstacle = { x: c.x, y: c.y, r: back.offsetWidth / 2 + 10 };
+  // Layout-Positionen statt getBoundingClientRect: Der Knopf liegt außerhalb
+  // der Spielansicht und zoomt beim Öffnen nicht mit — über toStage()
+  // umgerechnet säße der Pfosten sonst ~30 px daneben.
+  const b = layoutOffset(back);
+  const s = layoutOffset(stageEl);
+  obstacle = {
+    x: b.x - s.x + back.offsetWidth / 2,
+    y: b.y - s.y + back.offsetHeight / 2,
+    r: back.offsetWidth / 2 + 10,
+  };
+}
+
+/** Position im Layout (Summe der offsetLeft/-Top) — unabhängig von laufenden Transforms. */
+function layoutOffset(el: HTMLElement): { x: number; y: number } {
+  let x = 0;
+  let y = 0;
+  let n: HTMLElement | null = el;
+  while (n) {
+    x += n.offsetLeft;
+    y += n.offsetTop;
+    n = n.offsetParent as HTMLElement | null;
+  }
+  return { x, y };
 }
 
 function pushOutOfObstacle(b: Ball): number {
@@ -448,6 +476,12 @@ function step(dt: number): void {
     walls(b);
   }
   collide();
+  // Das Auseinanderschieben bei Zusammenstößen kann einen Ball an der Wand
+  // leicht über den Rand drücken — vor dem Zeichnen wieder hereinholen.
+  for (const b of balls) {
+    b.x = clamp(b.x, b.r, stageW - b.r);
+    b.y = clamp(b.y, b.r, stageH - b.r);
+  }
 }
 
 function walls(b: Ball): void {
@@ -598,7 +632,7 @@ function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
   timers.forEach((id) => window.clearTimeout(id));
-  timers = [];
+  timers = new Set();
   if (rafId !== null) {
     cancelAnimationFrame(rafId);
     rafId = null;

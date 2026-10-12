@@ -53,7 +53,7 @@ interface DrumRuntime {
 let stageEl: HTMLElement | null = null;
 let drums: DrumRuntime[] = [];
 let cleanup: Array<() => void> = [];
-let timers: number[] = [];
+let timers = new Set<number>();
 let activeVoices = 0;
 let punktCount = 0;
 /** Pro Finger: über welcher Trommel er gerade ist (-1 = keine), für Wisch-Wirbel. */
@@ -64,9 +64,17 @@ function on(el: EventTarget, type: string, handler: EventListenerOrEventListener
   cleanup.push(() => el.removeEventListener(type, handler));
 }
 
+/**
+ * Merkt sich laufende Timer fürs Aufräumen beim Verlassen — und vergisst sie
+ * wieder, sobald sie gefeuert haben. Sonst wüchse die Liste bei jedem Schlag
+ * und bliebe beim Dauerhämmern über die ganze Sitzung liegen.
+ */
 function later(fn: () => void, ms: number): number {
-  const id = window.setTimeout(fn, ms);
-  timers.push(id);
+  const id = window.setTimeout(() => {
+    timers.delete(id);
+    fn();
+  }, ms);
+  timers.add(id);
   return id;
 }
 
@@ -105,7 +113,7 @@ function drumSvg(d: DrumDef): string {
 
 function mount(container: HTMLElement): void {
   cleanup = [];
-  timers = [];
+  timers = new Set();
   activeVoices = 0;
   punktCount = 0;
   pointerDrum = new Map();
@@ -246,7 +254,10 @@ function bumm(d: DrumRuntime, staerke: number): void {
   d.drum.classList.add('bumm');
   // Pro Trommel nur ein Aufräum-Timer: Beim schnellen Hämmern würde sonst
   // der Timer eines früheren Schlags die Animation des nächsten abschneiden.
-  if (d.bummTimer !== null) window.clearTimeout(d.bummTimer);
+  if (d.bummTimer !== null) {
+    window.clearTimeout(d.bummTimer);
+    timers.delete(d.bummTimer);
+  }
   d.bummTimer = later(() => {
     d.drum.classList.remove('bumm');
     d.bummTimer = null;
@@ -288,7 +299,7 @@ function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
   timers.forEach((id) => window.clearTimeout(id));
-  timers = [];
+  timers = new Set();
   activeVoices = 0;
   punktCount = 0;
   pointerDrum = new Map();

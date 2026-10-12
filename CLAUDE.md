@@ -2,7 +2,7 @@
 
 Dies ist eine Offline-PWA-Spiel-App für ein 2-jähriges Kind (iPad).
 
-**Stand (12.10.2026, v1.1.1): fertig.** Alle Phasen aus
+**Stand (12.10.2026, v1.1.2): fertig.** Alle Phasen aus
 [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md) sind abgeschlossen, live auf
 https://theminhnguyen.github.io/spielkiste/. Der Build-Auftrag ist damit nur noch
 Hintergrund — neue Arbeit kommt als konkreter Wunsch des Nutzers, nicht als „nächste Phase".
@@ -45,10 +45,16 @@ Produkt- und Designentscheidungen stehen in [docs/PLAN.md](docs/PLAN.md).
 - **Bühne beim Öffnen 8 % zu klein gemessen:** Der ResizeObserver meldet sich, während die
   Spielansicht noch hineinzoomt (`transform: scale(0.92)`). Für Größen deshalb
   `clientWidth`/`clientHeight` nehmen, nie `getBoundingClientRect()` — ein Zoom löst keinen
-  weiteren Resize aus, der Fehler bliebe die ganze Sitzung.
+  weiteren Resize aus, der Fehler bliebe die ganze Sitzung. Elemente **außerhalb** der
+  Spielansicht (Zurück-Knopf) zoomen nicht mit — deren Position über `offsetLeft/-Top`
+  bestimmen, nicht über eine Zoom-Rückrechnung.
 - **Physik-Spiele (Bälle, Laub) im Preview-Tab:** Ist der Tab verdeckt, steht
   `requestAnimationFrame` still. Für Logik-Tests in der Seite `requestAnimationFrame` durch
   `setTimeout(…, 16)` ersetzen (nur im Test, nicht im Code).
+- **Service Worker auf localhost im Preview-Tab:** Die Registrierung scheitert dort
+  („unknown error when fetching the script"), obwohl `sw.js` erreichbar ist — Umgebung,
+  kein App-Fehler. Offline-Fähigkeit stattdessen auf der Live-Seite prüfen: `caches.keys()`,
+  Inhalt des Precache gegen die im `index.html` referenzierten Assets abgleichen.
 - **`requestAnimationFrame` feuert im versteckten Preview-Tab nicht zuverlässig** →
   Übergänge per Klassen-Toggle nach `void el.offsetWidth` statt rAF.
 - **Wisch-Gesten:** Zeit- und Distanz-Schwellen dürfen keine tote Zone zwischen „Tipp"

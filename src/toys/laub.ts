@@ -80,7 +80,7 @@ let igelEl: HTMLElement | null = null;
 let leaves: Leaf[] = [];
 let stacks: Leaf[][] = [];
 let cleanup: Array<() => void> = [];
-let timers: number[] = [];
+let timers = new Set<number>();
 let resizeObserver: ResizeObserver | null = null;
 let rafId: number | null = null;
 let lastFrameT = 0;
@@ -99,9 +99,17 @@ function on(el: EventTarget, type: string, handler: EventListenerOrEventListener
   cleanup.push(() => el.removeEventListener(type, handler));
 }
 
+/**
+ * Merkt sich laufende Timer fürs Aufräumen beim Verlassen — und vergisst sie
+ * wieder, sobald sie gefeuert haben. Sonst wüchse die Liste bei jedem Schlag
+ * und bliebe beim Dauerhämmern über die ganze Sitzung liegen.
+ */
 function later(fn: () => void, ms: number): number {
-  const id = window.setTimeout(fn, ms);
-  timers.push(id);
+  const id = window.setTimeout(() => {
+    timers.delete(id);
+    fn();
+  }, ms);
+  timers.add(id);
   return id;
 }
 
@@ -148,7 +156,7 @@ const IGEL_SVG = `
 
 function mount(container: HTMLElement): void {
   cleanup = [];
-  timers = [];
+  timers = new Set();
   hands = new Map();
   placed = false;
   wirbelCount = 0;
@@ -241,8 +249,11 @@ function restY(layer: number): number {
  * Legt ein Blatt auf den Boden. Ist der Haufen an dieser Stelle zu steil,
  * rutscht es zur niedrigeren Nachbarspalte (wie bei einem Sandhaufen) — so
  * entstehen von selbst runde Haufen statt Türmchen.
+ *
+ * @param fromAir true = landet aus dem Flug: bleibt möglichst dort liegen,
+ *   wo es aufkommt, und behält seine Drehung — sonst springt es sichtbar.
  */
-function land(leaf: Leaf, startBin: number): void {
+function land(leaf: Leaf, startBin: number, fromAir = false): void {
   let b = startBin;
   for (let k = 0; k < 24; k++) {
     const h = stacks[b].length;
@@ -256,12 +267,18 @@ function land(leaf: Leaf, startBin: number): void {
   stacks[b].push(leaf);
   leaf.onGround = true;
   leaf.bin = b;
-  leaf.x = binCenter(b) + (Math.random() - 0.5) * BIN_WIDTH * scale * 0.8;
+  const bw = BIN_WIDTH * scale;
+  if (fromAir) {
+    // Nur so weit verschieben, dass es in seiner (ggf. gerutschten) Spalte liegt.
+    leaf.x = Math.max(b * bw, Math.min((b + 1) * bw, leaf.x));
+  } else {
+    leaf.x = binCenter(b) + (Math.random() - 0.5) * bw * 0.8;
+    leaf.rot = (Math.random() - 0.5) * 70 + (Math.random() < 0.5 ? 0 : 180);
+  }
   leaf.y = restY(stacks[b].length - 1);
   leaf.vx = 0;
   leaf.vy = 0;
   leaf.vrot = 0;
-  leaf.rot = (Math.random() - 0.5) * 70 + (Math.random() < 0.5 ? 0 : 180);
   leaf.dirty = true;
 }
 
@@ -402,11 +419,15 @@ function onPointerDown(pe: PointerEvent): void {
   // Luft über einem Haufen wirbelt ihn trotzdem auf. So hat jeder Tipp eine
   // sichtbare Wirkung, auch weit weg vom Boden.
   const radius = GUST_RADIUS * scale;
+  // Nach unten so weit gestaucht, dass selbst ein Tipp ganz oben im Himmel
+  // die Blätter darunter noch erreicht — wichtig im Hochformat und auf dem
+  // iPhone, wo der Himmel viel höher ist als der Windstoß weit reicht.
+  const downScale = Math.min(0.4, (0.8 * radius) / Math.max(1, groundTop()));
   let count = 0;
   for (const l of leaves) {
     const dx = l.x - p.x;
     const dy = l.y - p.y;
-    const eff = Math.hypot(dx, dy > 0 ? dy * 0.4 : dy);
+    const eff = Math.hypot(dx, dy > 0 ? dy * downScale : dy);
     if (eff >= radius) continue;
     const f = 1 - eff / radius;
     let dirX = Math.abs(dx) < 4 ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(dx);
@@ -506,7 +527,10 @@ function igelWach(): void {
   igelEl.classList.add('hopst');
   playTone({ freq: 880, duration: 0.04, attack: 0.004, release: 0.06, type: 'triangle', gain: 0.14 });
   later(() => playTone({ freq: 988, duration: 0.04, attack: 0.004, release: 0.06, type: 'triangle', gain: 0.14 }), 120);
-  if (igelWachTimer !== null) window.clearTimeout(igelWachTimer);
+  if (igelWachTimer !== null) {
+    window.clearTimeout(igelWachTimer);
+    timers.delete(igelWachTimer);
+  }
   igelWachTimer = later(() => {
     igelEl?.classList.remove('wach');
     igelWachTimer = null;
@@ -571,7 +595,7 @@ function step(dt: number): void {
     }
 
     const b = binOf(l.x);
-    if (l.vy >= 0 && l.y >= restY(stacks[b].length)) land(l, b);
+    if (l.vy >= 0 && l.y >= restY(stacks[b].length)) land(l, b, true);
     l.dirty = true;
   }
 }
@@ -600,7 +624,7 @@ function unmount(): void {
   cleanup.forEach((fn) => fn());
   cleanup = [];
   timers.forEach((id) => window.clearTimeout(id));
-  timers = [];
+  timers = new Set();
   igelWachTimer = null;
   if (rafId !== null) {
     cancelAnimationFrame(rafId);
