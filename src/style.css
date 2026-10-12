@@ -60,20 +60,27 @@ body {
   pointer-events: none;
 }
 
-/* Festes 3×3-Raster: geht mit neun Spielzeugen in Hoch- UND Querformat auf,
-   weil die Kachelgröße an vmin (= immer die kürzere Bildschirmseite) hängt. */
+/* Zwölf Spielzeuge: 3 Spalten × 4 Reihen im Hochformat, 4 × 3 im Querformat.
+   Die Kachelgröße hängt an vmin (= immer die kürzere Bildschirmseite), damit
+   beide Ausrichtungen ohne Scrollen aufgehen — auch auf dem iPhone. */
 .tiles {
   display: grid;
   grid-template-columns: repeat(3, auto);
   justify-content: center;
   align-content: center;
-  gap: clamp(16px, 3.4vmin, 36px);
-  padding: clamp(16px, 4vmin, 40px);
+  gap: clamp(14px, 3.4vmin, 36px);
+  padding: clamp(12px, 4vmin, 40px);
+}
+
+@media (orientation: landscape) {
+  .tiles {
+    grid-template-columns: repeat(4, auto);
+  }
 }
 
 .tile {
-  width: clamp(112px, 23vmin, 220px);
-  height: clamp(112px, 23vmin, 220px);
+  width: clamp(92px, 23vmin, 220px);
+  height: clamp(92px, 23vmin, 220px);
   border-radius: 28px;
   background: #fffaf2;
   border: none;
@@ -2278,4 +2285,337 @@ body {
   .hole-fuellung.plumpst {
     animation: none;
   }
+}
+
+/* ---------- Patsch-Trommeln ---------- */
+
+.trommel-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: radial-gradient(ellipse at 50% 55%, #f7e3c4 0%, #eed5af 62%, #e4c69b 100%);
+}
+
+.trommel-raster {
+  position: absolute;
+  inset: calc(var(--safe-t) + 12px) calc(var(--safe-r) + 12px) calc(var(--safe-b) + 12px)
+    calc(var(--safe-l) + 12px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.trommel-zelle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Die Trommel füllt ihre Zelle so weit aus, wie Breite UND Höhe es zulassen
+     (cqw/cqh = Maße dieser Zelle). trommeln.ts misst die fertige Breite für
+     die Trefferfläche direkt am Element nach. */
+  container-type: size;
+}
+
+.trommel {
+  width: calc(min(46vw, 46vh) * var(--groesse, 1));
+  width: calc(min(96cqw, 100cqh * 200 / 190) * var(--groesse, 1));
+  aspect-ratio: 200 / 190;
+  transform-origin: 50% 92%;
+}
+
+.trommel-wackel {
+  width: 100%;
+  height: 100%;
+  animation: breathe 5s ease-in-out infinite;
+}
+
+.trommel-zelle:nth-child(2) .trommel-wackel { animation-delay: -1.2s; }
+.trommel-zelle:nth-child(3) .trommel-wackel { animation-delay: -2.6s; }
+.trommel-zelle:nth-child(4) .trommel-wackel { animation-delay: -3.7s; }
+
+.trommel svg { display: block; overflow: visible; }
+
+.trommel.bumm {
+  animation: trommel-bumm 520ms ease-out;
+}
+
+@keyframes trommel-bumm {
+  0% { transform: scale(1, 1); }
+  16% {
+    transform: scale(calc(1 + 0.03 * var(--staerke, 1)), calc(1 - 0.05 * var(--staerke, 1)));
+  }
+  42% {
+    transform: scale(calc(1 - 0.012 * var(--staerke, 1)), calc(1 + 0.03 * var(--staerke, 1)));
+  }
+  70% { transform: scale(1.004, 0.996); }
+  100% { transform: scale(1, 1); }
+}
+
+.trommel .gesicht-bumm { opacity: 0; }
+.trommel.bumm .gesicht-bumm { opacity: 1; }
+.trommel.bumm .gesicht-wach { opacity: 0; }
+
+.fell-welle {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.trommel.bumm .fell-welle {
+  animation: fell-welle 440ms ease-out;
+}
+
+@keyframes fell-welle {
+  0% { opacity: 0.8; transform: scale(0.25); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+.trommel-punkte {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.trommel-punkt {
+  position: absolute;
+  left: 50%;
+  border-radius: 50%;
+  opacity: 0;
+  animation: punkt-hops 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+
+@keyframes punkt-hops {
+  0% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--sx)), -50%) scale(0.6);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--sx) + var(--dx) * 0.6), calc(-50% + var(--dy))) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--sx) + var(--dx)), calc(-50% + var(--dy) * 0.15)) scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trommel-wackel { animation: none; }
+  .trommel.bumm { animation-duration: 300ms; }
+  .trommel-punkt { display: none; }
+}
+
+/* ---------- Bälle schubsen ---------- */
+
+.baelle-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: #ead7b8;
+}
+
+/* Spielteppich mit weichem Rand — von oben gesehen */
+.baelle-teppich {
+  position: absolute;
+  inset: 6%;
+  border-radius: 48px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 250, 242, 0.35) 0 22%, transparent 23%),
+    repeating-linear-gradient(90deg, #cfe2cf 0 60px, #c4dbc5 60px 120px);
+  box-shadow: inset 0 0 0 10px rgba(255, 250, 242, 0.5);
+}
+
+.baelle-wellen,
+.baelle-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.baelle-welle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.baelle-welle::after {
+  content: '';
+  position: absolute;
+  left: -60px;
+  top: -60px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 5px solid rgba(255, 250, 242, 0.85);
+  animation: baelle-welle 600ms ease-out forwards;
+}
+
+@keyframes baelle-welle {
+  0% { opacity: 0.9; transform: scale(0.2); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+.ball {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  opacity: 0;
+  filter: drop-shadow(0 10px 10px rgba(90, 70, 40, 0.22));
+  transition: opacity 300ms ease-out;
+}
+
+.baelle-stage.bereit .ball { opacity: 1; }
+
+.ball-muster {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #fdf6ea 0 13%, transparent 14%),
+    conic-gradient(var(--c1) 0deg 60deg, var(--c2) 60deg 120deg, var(--c3) 120deg 180deg,
+      var(--c1) 180deg 240deg, var(--c2) 240deg 300deg, var(--c3) 300deg 360deg);
+}
+
+.ball-glanz {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.75) 0 9%, transparent 22%),
+    radial-gradient(circle at 50% 50%, transparent 60%, rgba(90, 60, 30, 0.18) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .baelle-welle::after { animation-duration: 300ms; }
+}
+
+/* ---------- Laubhaufen ---------- */
+
+.laub-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.laub-himmel {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f3dcc0 0%, #f8e9d4 55%, #fbf0e0 100%);
+}
+
+.laub-huegel {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: 18%;
+  height: 22%;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: #e9d2a6;
+}
+
+.laub-baum {
+  position: absolute;
+  right: 4%;
+  bottom: 19%;
+  width: 30%;
+  height: 56%;
+  pointer-events: none;
+}
+
+.laub-baum svg { display: block; }
+
+.laub-boden {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20%;
+  background: linear-gradient(180deg, #b9b981 0%, #a8a874 100%);
+  box-shadow: 0 -4px 0 #c4c38c;
+}
+
+.laub-igel,
+.laub-blaetter,
+.laub-wirbel {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.laub-blaetter,
+.laub-wirbel {
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.laub-igel {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+.laub-blatt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 2px rgba(90, 60, 30, 0.18));
+  transition: opacity 300ms ease-out;
+}
+
+.laub-blatt svg { display: block; }
+
+.laub-stage.bereit .laub-blatt,
+.laub-stage.bereit .laub-igel { opacity: 1; }
+
+.laub-igel svg { display: block; }
+
+.laub-igel .igel-auge-auf { opacity: 0; }
+.laub-igel.wach .igel-auge-auf { opacity: 1; }
+.laub-igel.wach .igel-auge-zu { opacity: 0; }
+
+.laub-igel.hopst svg {
+  animation: igel-hopsen 520ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  transform-origin: 50% 100%;
+}
+
+@keyframes igel-hopsen {
+  0% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-22%) scale(0.96, 1.05); }
+  65% { transform: translateY(0) scale(1.06, 0.92); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+.laub-wirbelchen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.laub-wirbelchen svg {
+  position: absolute;
+  left: -40px;
+  top: -40px;
+  width: 80px;
+  height: 80px;
+  animation: laub-wirbel 680ms ease-out forwards;
+}
+
+@keyframes laub-wirbel {
+  0% { opacity: 0.95; transform: scale(0.4) rotate(0deg); }
+  100% { opacity: 0; transform: scale(1.4) rotate(160deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .laub-igel.hopst svg { animation: none; }
+  .laub-wirbelchen svg { animation-duration: 300ms; }
 }

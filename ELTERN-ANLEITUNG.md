@@ -21,7 +21,7 @@ Offline-Speicher des iPads.
 1. App schließen (Home-Wisch nach oben).
 2. **Flugmodus einschalten** (Kontrollzentrum).
 3. Spielkiste über das Home-Bildschirm-Symbol erneut öffnen.
-4. Alle neun Spielzeuge sollten normal funktionieren — dann ist die App bereit für
+4. Alle zwölf Spielzeuge sollten normal funktionieren — dann ist die App bereit für
    unterwegs, im Auto, im Flugzeug, überall ohne Internet.
 
 *Hinweis:* Solange die App vom Home-Bildschirm gestartet wird (nicht im normalen
@@ -40,7 +40,11 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
 5. Das Kind kann jetzt nur noch innerhalb der App wischen und tippen.
 6. Zum Beenden: erneut dreimal die Seitentaste drücken, Code eingeben, „Beenden".
 
-## 5. Die neun Spielzeuge
+Besonders wichtig bei den Patsch-Spielen (Trommeln, Bälle, Laubhaufen): Mit vier
+oder fünf Fingern gleichzeitig löst das iPad sonst eigene Gesten aus (zum
+Home-Bildschirm, App wechseln). Im Geführten Zugriff sind diese Gesten gesperrt.
+
+## 5. Die zwölf Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,
   Reißverschluss, Windrädchen, Klapptürchen mit Tieren, Zahnräder, Klingel,
@@ -63,6 +67,19 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
   zudecken und wieder wecken; ruhig für die Zeit vorm Einschlafen oder
   unterwegs.
 
+Die letzten drei sind zum **Austoben** gedacht — mit der ganzen Hand patschen,
+wild wischen und hämmern ist ausdrücklich erwünscht, nichts muss getroffen werden:
+
+- **Patsch-Trommeln** — vier große Trommeln mit Gesicht. Jeder Patscher irgendwo
+  auf dem Bildschirm trifft die nächste Trommel; mehrere Finger gleichzeitig
+  machen einen dickeren Bumm, Wischen über die Trommeln spielt einen Wirbel.
+- **Bälle schubsen** — Wasserbälle auf einem Spielteppich. Hauen oder Wischen
+  schleudert sie herum, sie stoßen sich gegenseitig an, prallen von den Wänden
+  ab und rollen aus.
+- **Laubhaufen** — Herbstblätter in Haufen. Patschen und Wischen wirbelt sie
+  hoch, sie segeln langsam herunter und bilden neue Haufen. Unter einem Haufen
+  schläft ein Igel, der beim Antippen aufwacht und hüpft.
+
 Alles bleibt gespeichert (außer die kurzen Klang-Kleckse-Positionen) — beim
 nächsten Öffnen ist alles wieder da, wie das Kind es verlassen hat.
 
@@ -77,6 +94,7 @@ einzustellen oder alle gespeicherten Spielstände zurückzusetzen. Für ein
 
 - **App reagiert nicht mehr:** normal schließen (Home-Wisch) und neu öffnen —
   alle Spielstände bleiben erhalten.
-- **Ton fehlt:** iPad-Stummschalter prüfen und Lautstärke im Elternbereich.
+- **Ton fehlt:** Lautstärke-Tasten am iPad und Lautstärke im Elternbereich prüfen.
+  Der Knopf „Test-Ton abspielen" im Elternbereich zeigt darunter den Ton-Status an.
 - **Update einspielen:** Solange Internet verfügbar ist, aktualisiert sich die App
   automatisch beim Öffnen im Hintergrund.

@@ -176,12 +176,13 @@ let draggingId: string | null = null;
 function applyFormTransform(id: string, offsetXPx = 0, offsetYPx = 0): void {
   const formEl = formEls.get(id);
   if (!formEl || !stageEl) return;
-  const rect = stageEl.getBoundingClientRect();
   const st = stateOf(id);
   const halfW = formEl.offsetWidth / 2;
   const halfH = formEl.offsetHeight / 2;
-  const x = (st.xPct / 100) * rect.width - halfW + offsetXPx;
-  const y = (st.yPct / 100) * rect.height - halfH + offsetYPx;
+  // Layout-Maße statt getBoundingClientRect — beim Öffnen zoomt die
+  // Spielansicht noch hinein, siehe applyTransform in kleckse.ts.
+  const x = (st.xPct / 100) * stageEl.clientWidth - halfW + offsetXPx;
+  const y = (st.yPct / 100) * stageEl.clientHeight - halfH + offsetYPx;
   formEl.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
 }
 

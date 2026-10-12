@@ -279,6 +279,120 @@ export function playZipSound(opening: boolean): void {
 }
 
 /**
+ * Weicher, tiefer Trommelschlag: Sinus mit kurzem Tonhöhen-Abfall (der
+ * typische „Bumm"), eine Oberton-Schicht und ein Hauch gefiltertes Rauschen
+ * fürs Fell. Die Oberton-Schicht ist wichtig, weil Tablet-Lautsprecher unter
+ * ~150 Hz kaum etwas wiedergeben — ohne sie wäre eine tiefe Trommel am iPad
+ * fast stumm.
+ */
+export function playDrum(freq: number, gain = 0.4, decay = 0.55): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = c.currentTime;
+  const g = Math.max(0.001, gain);
+
+  const body = c.createOscillator();
+  body.type = 'sine';
+  body.frequency.setValueAtTime(freq * 2.2, t);
+  body.frequency.exponentialRampToValueAtTime(freq, t + 0.07);
+  const bodyEnv = c.createGain();
+  bodyEnv.gain.setValueAtTime(0.0001, t);
+  bodyEnv.gain.exponentialRampToValueAtTime(g, t + 0.006);
+  bodyEnv.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+  body.connect(bodyEnv);
+  bodyEnv.connect(masterGain);
+  body.start(t);
+  body.stop(t + decay + 0.05);
+
+  const over = c.createOscillator();
+  over.type = 'triangle';
+  over.frequency.setValueAtTime(freq * 4, t);
+  over.frequency.exponentialRampToValueAtTime(freq * 2, t + 0.05);
+  const overEnv = c.createGain();
+  overEnv.gain.setValueAtTime(0.0001, t);
+  overEnv.gain.exponentialRampToValueAtTime(g * 0.35, t + 0.005);
+  overEnv.gain.exponentialRampToValueAtTime(0.0001, t + decay * 0.45);
+  over.connect(overEnv);
+  overEnv.connect(masterGain);
+  over.start(t);
+  over.stop(t + decay * 0.45 + 0.05);
+
+  const noise = c.createBufferSource();
+  noise.buffer = getNoiseBuffer(c);
+  const lowpass = c.createBiquadFilter();
+  lowpass.type = 'lowpass';
+  lowpass.frequency.value = 900;
+  const noiseEnv = c.createGain();
+  noiseEnv.gain.setValueAtTime(g * 0.5, t);
+  noiseEnv.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+  noise.connect(lowpass);
+  lowpass.connect(noiseEnv);
+  noiseEnv.connect(masterGain);
+  noise.start(t, Math.random() * 0.3);
+  noise.stop(t + 0.1);
+}
+
+/**
+ * Kurzes, weiches „Bonk" eines Balls — Sinus mit schnellem Tonhöhen-Abfall.
+ */
+export function playBounce(freq: number, gain = 0.25): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = c.currentTime;
+
+  const osc = c.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(freq * 1.8, t);
+  osc.frequency.exponentialRampToValueAtTime(freq, t + 0.04);
+  const env = c.createGain();
+  env.gain.setValueAtTime(0.0001, t);
+  env.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), t + 0.004);
+  env.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+  osc.connect(env);
+  env.connect(masterGain);
+  osc.start(t);
+  osc.stop(t + 0.26);
+}
+
+/**
+ * Laub-Rascheln: hoch gefiltertes Rauschen mit unregelmäßig springender
+ * Lautstärke, damit es nach vielen kleinen Blättern klingt statt nach einem
+ * gleichmäßigen Zischen.
+ */
+export function playRustle(gain = 0.15, duration = 0.3): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = c.currentTime;
+
+  const source = c.createBufferSource();
+  source.buffer = getNoiseBuffer(c);
+  const highpass = c.createBiquadFilter();
+  highpass.type = 'highpass';
+  highpass.frequency.value = 1800;
+  const bandpass = c.createBiquadFilter();
+  bandpass.type = 'bandpass';
+  bandpass.frequency.value = 3000 + Math.random() * 2000;
+  bandpass.Q.value = 0.7;
+
+  const env = c.createGain();
+  env.gain.setValueAtTime(0, t);
+  const steps = 8;
+  for (let i = 0; i < steps; i++) {
+    const at = t + (duration * i) / steps;
+    const fade = 1 - i / steps;
+    env.gain.linearRampToValueAtTime(gain * fade * (0.4 + Math.random() * 0.6), at + 0.012);
+  }
+  env.gain.linearRampToValueAtTime(0, t + duration + 0.04);
+
+  source.connect(highpass);
+  highpass.connect(bandpass);
+  bandpass.connect(env);
+  env.connect(masterGain);
+  source.start(t, Math.random() * Math.max(0, 0.5 - duration - 0.05));
+  source.stop(t + duration + 0.06);
+}
+
+/**
  * Weiches Rauschen für das Türchen-Öffnen (kurzes "Whoosh").
  */
 export function playWhoosh(): void {

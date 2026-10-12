@@ -2,12 +2,13 @@
 
 Dies ist eine Offline-PWA-Spiel-App für ein 2-jähriges Kind (iPad).
 
-**Stand (12.08.2026, v1.0.6): fertig.** Alle Phasen aus
+**Stand (12.10.2026, v1.1.0): fertig.** Alle Phasen aus
 [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md) sind abgeschlossen, live auf
 https://theminhnguyen.github.io/spielkiste/. Der Build-Auftrag ist damit nur noch
 Hintergrund — neue Arbeit kommt als konkreter Wunsch des Nutzers, nicht als „nächste Phase".
-9 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen, Formen-Sortierer, Seifenblasen, Putzen,
-Sticker-Szene, Wimmelbild, Gute-Nacht-Szene); die Stapelsteine wurden auf Wunsch entfernt.
+12 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen, Formen-Sortierer, Seifenblasen, Putzen,
+Sticker-Szene, Wimmelbild, Gute-Nacht-Szene, dazu für gröberes Spielen Patsch-Trommeln,
+Bälle schubsen, Laubhaufen); die Stapelsteine wurden auf Wunsch entfernt.
 Eltern-Anleitung: [ELTERN-ANLEITUNG.md](ELTERN-ANLEITUNG.md).
 Produkt- und Designentscheidungen stehen in [docs/PLAN.md](docs/PLAN.md).
 
@@ -41,6 +42,13 @@ Produkt- und Designentscheidungen stehen in [docs/PLAN.md](docs/PLAN.md).
   Zustand — bei Ton-Problemen den Nutzer bitten, den Text abzuschreiben.
 - **Klang-Kleckse in der Ecke:** Positionen nie nur einmal beim Mount aus der gemessenen
   Bühnengröße setzen (kann 0×0 sein) → `ResizeObserver`.
+- **Bühne beim Öffnen 8 % zu klein gemessen:** Der ResizeObserver meldet sich, während die
+  Spielansicht noch hineinzoomt (`transform: scale(0.92)`). Für Größen deshalb
+  `clientWidth`/`clientHeight` nehmen, nie `getBoundingClientRect()` — ein Zoom löst keinen
+  weiteren Resize aus, der Fehler bliebe die ganze Sitzung.
+- **Physik-Spiele (Bälle, Laub) im Preview-Tab:** Ist der Tab verdeckt, steht
+  `requestAnimationFrame` still. Für Logik-Tests in der Seite `requestAnimationFrame` durch
+  `setTimeout(…, 16)` ersetzen (nur im Test, nicht im Code).
 - **`requestAnimationFrame` feuert im versteckten Preview-Tab nicht zuverlässig** →
   Übergänge per Klassen-Toggle nach `void el.offsetWidth` statt rAF.
 - **Wisch-Gesten:** Zeit- und Distanz-Schwellen dürfen keine tote Zone zwischen „Tipp"

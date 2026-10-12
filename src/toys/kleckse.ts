@@ -111,9 +111,12 @@ function mount(container: HTMLElement): void {
  */
 function applyTransform(blob: BlobRuntime, scaleX = 1, scaleY = 1): void {
   if (!stageEl) return;
-  const rect = stageEl.getBoundingClientRect();
-  const x = (blob.xPct / 100) * rect.width - blob.def.radiusPx;
-  const y = (blob.yPct / 100) * rect.height - blob.def.radiusPx;
+  // Layout-Maße statt getBoundingClientRect: Beim Öffnen zoomt die
+  // Spielansicht noch hinein (transform: scale), der ResizeObserver meldet
+  // sich genau dann — die Rect-Maße wären ~8 % zu klein, und ein Zoom löst
+  // keinen weiteren Resize aus, der das korrigieren würde.
+  const x = (blob.xPct / 100) * stageEl.clientWidth - blob.def.radiusPx;
+  const y = (blob.yPct / 100) * stageEl.clientHeight - blob.def.radiusPx;
   blob.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`;
 }
 

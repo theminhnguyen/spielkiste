@@ -176,9 +176,10 @@ function mount(container: HTMLElement): void {
  */
 function applyStickerPosition(el: HTMLElement, xPct: number, yPct: number): void {
   if (!sceneEl) return;
-  const r = sceneEl.getBoundingClientRect();
-  el.style.setProperty('--tx', `${((xPct / 100) * r.width).toFixed(1)}px`);
-  el.style.setProperty('--ty', `${((yPct / 100) * r.height).toFixed(1)}px`);
+  // Layout-Maße statt getBoundingClientRect — beim Öffnen zoomt die
+  // Spielansicht noch hinein, siehe applyTransform in kleckse.ts.
+  el.style.setProperty('--tx', `${((xPct / 100) * sceneEl.clientWidth).toFixed(1)}px`);
+  el.style.setProperty('--ty', `${((yPct / 100) * sceneEl.clientHeight).toFixed(1)}px`);
 }
 
 function renderPlaced(): void {

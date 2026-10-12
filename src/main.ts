@@ -11,10 +11,26 @@ import { putzen } from './toys/putzen';
 import { sticker } from './toys/sticker';
 import { wimmelbild } from './toys/wimmelbild';
 import { gutenacht } from './toys/gutenacht';
+import { trommeln } from './toys/trommeln';
+import { baelle } from './toys/baelle';
+import { laub } from './toys/laub';
 
 loadSettings();
 
-const toys: Toy[] = [brett, kleckse, malen, sortierer, blasen, putzen, sticker, wimmelbild, gutenacht];
+const toys: Toy[] = [
+  brett,
+  kleckse,
+  malen,
+  sortierer,
+  blasen,
+  putzen,
+  sticker,
+  wimmelbild,
+  gutenacht,
+  trommeln,
+  baelle,
+  laub,
+];
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
