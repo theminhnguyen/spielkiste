@@ -348,6 +348,7 @@ function unmount(): void {
 
 export const putzen: Toy = {
   id: 'putzen',
+  name: 'Putzen',
   accent: '#7ec8d8',
   tileIcon,
   mount,

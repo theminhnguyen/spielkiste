@@ -345,6 +345,7 @@ function unmount(): void {
 
 export const wimmelbild: Toy = {
   id: 'wimmelbild',
+  name: 'Wimmelbild',
   accent: '#9ec99f',
   tileIcon,
   mount,

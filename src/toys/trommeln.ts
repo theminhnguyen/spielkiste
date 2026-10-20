@@ -309,6 +309,7 @@ function unmount(): void {
 
 export const trommeln: Toy = {
   id: 'trommeln',
+  name: 'Patsch-Trommeln',
   accent: '#e88a9a',
   tileIcon,
   mount,

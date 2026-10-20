@@ -26,12 +26,14 @@ export function saveState<T>(key: string, version: number, data: T): void {
   }
 }
 
-export function clearAllState(): void {
+/** Löscht alle gespeicherten Stände der Spielkiste — außer den Schlüsseln in `keep`. */
+export function clearAllState(keep: string[] = []): void {
   try {
+    const keepFull = new Set(keep.map((k) => PREFIX + k));
     const keys: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k?.startsWith(PREFIX)) keys.push(k);
+      if (k?.startsWith(PREFIX) && !keepFull.has(k)) keys.push(k);
     }
     keys.forEach((k) => localStorage.removeItem(k));
   } catch {

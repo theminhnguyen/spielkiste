@@ -653,6 +653,7 @@ function unmount(): void {
 
 export const baelle: Toy = {
   id: 'baelle',
+  name: 'Bälle schubsen',
   accent: '#7ea3c9',
   tileIcon,
   mount,

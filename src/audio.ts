@@ -393,6 +393,69 @@ export function playRustle(gain = 0.15, duration = 0.3): void {
 }
 
 /**
+ * Ton mit gleitender Tonhöhe — z. B. Blubberblase (schnell nach oben) oder
+ * Walgesang (langsam, tief).
+ */
+export function playGlide(from: number, to: number, duration: number, gain = 0.2, type: OscillatorType = 'sine'): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = c.currentTime;
+  const osc = c.createOscillator();
+  osc.type = type;
+  osc.frequency.setValueAtTime(from, t);
+  osc.frequency.exponentialRampToValueAtTime(to, t + duration);
+  const env = c.createGain();
+  env.gain.setValueAtTime(0.0001, t);
+  env.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), t + Math.min(0.03, duration / 3));
+  env.gain.exponentialRampToValueAtTime(0.0001, t + duration + 0.08);
+  osc.connect(env);
+  env.connect(masterGain);
+  osc.start(t);
+  osc.stop(t + duration + 0.12);
+}
+
+/** Aktuelle Zeit der Audio-Uhr (für vorausgeplante Melodien), null ohne laufenden Ton. */
+export function getAudioTime(): number | null {
+  return ctx && ctx.state === 'running' ? ctx.currentTime : null;
+}
+
+/**
+ * Spieluhr-Ton zu einem festen Zeitpunkt der Audio-Uhr: Grundton mit
+ * langem Ausklingen plus ein kurzer hoher Teilton für das typische
+ * „Zinken" der Metallzunge.
+ */
+export function playMusicBoxNote(freq: number, at: number, gain = 0.18): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = Math.max(at, c.currentTime);
+  const g = Math.max(0.001, gain);
+
+  const body = c.createOscillator();
+  body.type = 'sine';
+  body.frequency.value = freq;
+  const bodyEnv = c.createGain();
+  bodyEnv.gain.setValueAtTime(0.0001, t);
+  bodyEnv.gain.exponentialRampToValueAtTime(g, t + 0.004);
+  bodyEnv.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+  body.connect(bodyEnv);
+  bodyEnv.connect(masterGain);
+  body.start(t);
+  body.stop(t + 1.45);
+
+  const tine = c.createOscillator();
+  tine.type = 'sine';
+  tine.frequency.value = freq * 4.02;
+  const tineEnv = c.createGain();
+  tineEnv.gain.setValueAtTime(0.0001, t);
+  tineEnv.gain.exponentialRampToValueAtTime(g * 0.25, t + 0.002);
+  tineEnv.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+  tine.connect(tineEnv);
+  tineEnv.connect(masterGain);
+  tine.start(t);
+  tine.stop(t + 0.2);
+}
+
+/**
  * Weiches Rauschen für das Türchen-Öffnen (kurzes "Whoosh").
  */
 export function playWhoosh(): void {

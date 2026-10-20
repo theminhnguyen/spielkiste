@@ -2,13 +2,17 @@
 
 Dies ist eine Offline-PWA-Spiel-App für ein 2-jähriges Kind (iPad).
 
-**Stand (12.10.2026, v1.1.3): fertig.** Alle Phasen aus
+**Stand (16.10.2026, v1.2.0): fertig.** Alle Phasen aus
 [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md) sind abgeschlossen, live auf
 https://theminhnguyen.github.io/spielkiste/. Der Build-Auftrag ist damit nur noch
 Hintergrund — neue Arbeit kommt als konkreter Wunsch des Nutzers, nicht als „nächste Phase".
-12 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen, Formen-Sortierer, Seifenblasen, Putzen,
-Sticker-Szene, Wimmelbild, Gute-Nacht-Szene, dazu für gröberes Spielen Patsch-Trommeln,
-Bälle schubsen, Laubhaufen); die Stapelsteine wurden auf Wunsch entfernt.
+16 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen, Formen-Sortierer, Seifenblasen, Putzen,
+Sticker-Szene, Wimmelbild, Gute-Nacht-Szene, für gröberes Spielen Patsch-Trommeln,
+Bälle schubsen, Laubhaufen, für lange Flüge Flugzeugfenster, Spieluhr, Aquarium, Kuckuck);
+die Stapelsteine wurden auf Wunsch entfernt. Elternbereich: Offline-Check, Lautstärke,
+Nachtflug-Modus, Spiele ein-/ausblenden, Ton-Diagnose. Akku-Schonung über `src/ruhe.ts`
+(nach 90 s ohne Berührung halten Animationen an; Spielzeuge mit eigener Schleife melden
+sich dort an). Startseiten-Raster rechnet `layoutTiles()` in `main.ts` für jede Anzahl aus.
 Eltern-Anleitung: [ELTERN-ANLEITUNG.md](ELTERN-ANLEITUNG.md).
 Produkt- und Designentscheidungen stehen in [docs/PLAN.md](docs/PLAN.md).
 

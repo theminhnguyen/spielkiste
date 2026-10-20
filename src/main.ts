@@ -1,6 +1,7 @@
 import './style.css';
 import { unlockAudio, playTone, isAudioReady } from './audio';
-import { renderElternbereich, loadSettings } from './eltern';
+import { renderElternbereich, loadSettings, isNachtModus, getVersteckteSpiele } from './eltern';
+import { initRuhe } from './ruhe';
 import type { Toy } from './toys/types';
 import { brett } from './toys/brett';
 import { kleckse } from './toys/kleckse';
@@ -14,6 +15,10 @@ import { gutenacht } from './toys/gutenacht';
 import { trommeln } from './toys/trommeln';
 import { baelle } from './toys/baelle';
 import { laub } from './toys/laub';
+import { fenster } from './toys/fenster';
+import { spieluhr } from './toys/spieluhr';
+import { aquarium } from './toys/aquarium';
+import { kuckuck } from './toys/kuckuck';
 
 loadSettings();
 
@@ -30,6 +35,10 @@ const toys: Toy[] = [
   trommeln,
   baelle,
   laub,
+  fenster,
+  spieluhr,
+  aquarium,
+  kuckuck,
 ];
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -68,6 +77,7 @@ app.innerHTML = `
     <div id="elternPanelWrap"></div>
   </div>
   <div class="version-placeholder">v${__APP_VERSION__} · ${__COMMIT_HASH__}</div>
+  <div class="nacht-dimmer" id="nachtDimmer"></div>
 `;
 
 const spielzimmerEl = document.querySelector<HTMLDivElement>('#spielzimmer')!;
@@ -82,9 +92,15 @@ const elternPanelWrapEl = document.querySelector<HTMLDivElement>('#elternPanelWr
 let activeToy: Toy | null = null;
 let isAnimating = false;
 
+function sichtbareToys(): Toy[] {
+  const versteckt = new Set(getVersteckteSpiele());
+  const sichtbar = toys.filter((t) => !versteckt.has(t.id));
+  return sichtbar.length > 0 ? sichtbar : toys;
+}
+
 function renderTiles(): void {
   tilesEl.innerHTML = '';
-  toys.forEach((toy, i) => {
+  sichtbareToys().forEach((toy, i) => {
     const btn = document.createElement('button');
     btn.className = 'tile';
     btn.style.setProperty('--accent', toy.accent);
@@ -98,6 +114,41 @@ function renderTiles(): void {
     });
     tilesEl.appendChild(btn);
   });
+  layoutTiles();
+}
+
+/**
+ * Wählt Spaltenzahl und Kachelgröße so, dass alle sichtbaren Kacheln ohne
+ * Scrollen möglichst groß hineinpassen — in jeder Ausrichtung und für jede
+ * Anzahl (Eltern können Spiele ausblenden, dann werden die übrigen größer).
+ */
+function layoutTiles(): void {
+  const n = tilesEl.childElementCount;
+  if (n === 0) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const kurz = Math.min(w, h);
+  const pad = Math.min(40, Math.max(12, kurz * 0.04));
+  const gap = Math.min(36, Math.max(14, kurz * 0.034));
+  // Unten etwas mehr Luft für den Eltern-Punkt in der Ecke.
+  const availW = w - 2 * pad;
+  const availH = h - 2 * pad - 36;
+  let best = { cols: 1, size: 0 };
+  for (let cols = 1; cols <= n; cols++) {
+    const rows = Math.ceil(n / cols);
+    const size = Math.min((availW - (cols - 1) * gap) / cols, (availH - (rows - 1) * gap) / rows);
+    if (size > best.size) best = { cols, size };
+  }
+  const size = Math.max(72, Math.min(220, best.size));
+  tilesEl.style.gridTemplateColumns = `repeat(${best.cols}, auto)`;
+  tilesEl.style.setProperty('--tile', `${Math.floor(size)}px`);
+  tilesEl.style.setProperty('--tile-gap', `${Math.floor(gap)}px`);
+}
+
+window.addEventListener('resize', layoutTiles);
+
+function applyNachtModus(): void {
+  document.documentElement.classList.toggle('nachtflug', isNachtModus());
 }
 
 function openToy(toy: Toy): void {
@@ -228,7 +279,13 @@ elternGateEl.addEventListener('pointercancel', cancelGateHold);
 elternGateEl.addEventListener('pointerleave', cancelGateHold);
 
 function openEltern(): void {
-  renderElternbereich(elternPanelWrapEl);
+  renderElternbereich(elternPanelWrapEl, {
+    toys,
+    onChange: () => {
+      applyNachtModus();
+      renderTiles();
+    },
+  });
   elternOverlayEl.classList.add('active');
 }
 
@@ -271,4 +328,6 @@ document.addEventListener(
   { once: false },
 );
 
+applyNachtModus();
+initRuhe();
 renderTiles();

@@ -268,6 +268,7 @@ function unmount(): void {
 
 export const kleckse: Toy = {
   id: 'kleckse',
+  name: 'Klang-Kleckse',
   accent: '#e88a9a',
   tileIcon,
   mount,

@@ -60,31 +60,25 @@ body {
   pointer-events: none;
 }
 
-/* Zwölf Spielzeuge: 3 Spalten × 4 Reihen im Hochformat, 4 × 3 im Querformat.
-   Die Kachelgröße hängt an vmin (= immer die kürzere Bildschirmseite), damit
-   beide Ausrichtungen ohne Scrollen aufgehen — auch auf dem iPhone. */
+/* Spaltenzahl und Kachelgröße (--tile) berechnet layoutTiles() in main.ts
+   aus Bildschirmgröße und Zahl der sichtbaren Spiele — die Werte hier sind
+   nur der Rückfall, bis das Skript gelaufen ist. */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: repeat(4, auto);
   justify-content: center;
   align-content: center;
-  gap: clamp(14px, 3.4vmin, 36px);
+  gap: var(--tile-gap, clamp(14px, 3.4vmin, 36px));
   padding: clamp(12px, 4vmin, 40px);
 }
 
-@media (orientation: landscape) {
-  .tiles {
-    grid-template-columns: repeat(4, auto);
-  }
-}
-
 .tile {
-  width: clamp(92px, 23vmin, 220px);
-  height: clamp(92px, 23vmin, 220px);
+  width: var(--tile, clamp(80px, 19vmin, 200px));
+  height: var(--tile, clamp(80px, 19vmin, 200px));
   border-radius: 28px;
   background: #fffaf2;
   border: none;
-  padding: clamp(16px, 3vw, 28px);
+  padding: calc(var(--tile, 160px) * 0.13);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,9 +222,21 @@ body {
 .eltern-panel {
   background: #fffaf2;
   border-radius: 24px;
-  padding: 32px 40px;
+  padding: 28px 32px;
   min-width: 280px;
-  max-width: 420px;
+  max-width: 460px;
+  width: calc(100% - 32px);
+  /* Mit 16 Spielen in der Liste länger als ein iPhone-Bildschirm: Das Panel
+     scrollt selbst. touch-action hier freigeben — html/body sperren Gesten
+     sonst für die ganze App (touch-action: none). */
+  /* Bezug auf den Bildschirm (vh/dvh), nicht auf % — der umgebende
+     Container hat keine feste Höhe, ein %-Wert würde ignoriert. */
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   color: #4a4032;
@@ -359,6 +365,136 @@ body {
 .eltern-reset-confirm-btn {
   background: #d97757;
   color: #fffaf2;
+}
+
+/* Nachtflug-Modus */
+
+.eltern-schalter {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 18px 0;
+  cursor: pointer;
+}
+
+.eltern-schalter input {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  accent-color: #7ea3c9;
+  flex: 0 0 auto;
+}
+
+.eltern-schalter-text strong {
+  display: block;
+  font-size: 15px;
+}
+
+.eltern-schalter-text small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #6b5d4a;
+  margin-top: 2px;
+}
+
+/* Spiele ein-/ausblenden */
+
+.eltern-spiele h2 {
+  font-size: 15px;
+  margin: 22px 0 2px;
+}
+
+.eltern-spiele > p {
+  font-size: 12px !important;
+  margin: 0 0 10px !important;
+}
+
+.eltern-spiele-liste {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.eltern-spiel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 12px;
+  border: 1px solid #ead9bd;
+  background: #fffdf8;
+  color: #4a4032;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity 150ms ease-out;
+}
+
+.eltern-spiel-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+}
+
+.eltern-spiel-icon svg { display: block; }
+
+.eltern-spiel.aus {
+  opacity: 0.38;
+  background: #f4ede2;
+}
+
+.eltern-spiel.aus .eltern-spiel-name { text-decoration: line-through; }
+
+.eltern-spiele-hinweis {
+  color: #a05a2c !important;
+  font-size: 12px !important;
+}
+
+/* Offline-Check */
+
+.eltern-offline-status {
+  margin: 4px 0 0 !important;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px !important;
+  background: #f4e9d8;
+}
+
+.eltern-offline-status.ok {
+  background: #e3f1e6;
+  color: #3f6b4c !important;
+}
+
+.eltern-offline-status.fehlt {
+  background: #fdeee0;
+  color: #8a4a22 !important;
+}
+
+/* ---------- Nachtflug-Modus & Ruhezustand ---------- */
+
+/* Eine einzige feste Ebene über allem außer dem Elternbereich: billig für die
+   GPU (keine Filter) und auf OLED-Bildschirmen spart Dunkles echten Strom.
+   Warmer Ton statt Grau, damit es abends nicht kalt-blau wirkt. */
+.nacht-dimmer {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  background: rgba(18, 10, 4, 0.55);
+  opacity: 0;
+  transition: opacity 600ms ease-out;
+}
+
+html.nachtflug .nacht-dimmer { opacity: 1; }
+
+/* Akku schonen: Nach längerer Untätigkeit hält ruhe.ts alle CSS-Animationen
+   an (atmende Kacheln, wippende Trommeln, funkelnde Sterne …). Der erste
+   Tipp entfernt die Klasse wieder, alles läuft an derselben Stelle weiter. */
+html.ruhe *,
+html.ruhe *::before,
+html.ruhe *::after {
+  animation-play-state: paused !important;
 }
 
 /* ---------- Fummelbrett ---------- */
@@ -2635,4 +2771,629 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .laub-igel.hopst svg { animation: none; }
   .laub-wirbelchen svg { animation-duration: 300ms; }
+}
+
+/* ---------- Flugzeugfenster ---------- */
+
+.fenster-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background:
+    linear-gradient(90deg, rgba(120, 100, 80, 0.05) 0 1px, transparent 1px) 0 0 / 25% 100%,
+    linear-gradient(180deg, #f1e9dc 0%, #e6dccb 100%);
+}
+
+/* Ovales Flugzeugfenster; Höhe bestimmt die Größe, die Breite folgt dem
+   Seitenverhältnis. */
+.fenster {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: min(88%, calc(92vw / 0.74));
+  aspect-ratio: 0.74;
+  transform: translate(-50%, -50%);
+  padding: 3.4%;
+  border-radius: 46% / 33%;
+  background: #f7f1e6;
+  box-shadow: 0 16px 40px rgba(90, 70, 40, 0.2), inset 0 0 0 4px #ebe0cf;
+}
+
+.fenster-innen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 44% / 31%;
+  overflow: hidden;
+  /* Eigene Ebene + isolation: Safari schneidet animierte Kinder sonst nicht
+     sauber an den runden Ecken ab. */
+  isolation: isolate;
+  transform: translateZ(0);
+  background: #cfe7f5;
+}
+
+.fenster-szene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease-out;
+}
+
+.fenster-szene.aktiv { opacity: 1; }
+.fenster-szene svg { display: block; }
+
+.fenster-dunst {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #f3f6f9;
+  pointer-events: none;
+  transition: opacity 800ms ease-out;
+}
+
+.fenster-wolke {
+  position: absolute;
+  z-index: 2;
+  width: 76%;
+  aspect-ratio: 200 / 120;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  /* Rückkehr: langsam und gestaffelt (--delay setzt fenster.ts). */
+  transition:
+    transform 2.6s cubic-bezier(0.2, 0.7, 0.3, 1) var(--delay, 0ms),
+    opacity 2s ease-out var(--delay, 0ms);
+}
+
+.fenster-wolke.weg {
+  transform: translate(calc(-50% + var(--wx, 0px)), calc(-50% + var(--wy, 0px))) scale(1.3);
+  opacity: 0;
+  transition: transform 750ms cubic-bezier(0.4, 0, 0.8, 0.6), opacity 650ms ease-in;
+}
+
+.fenster-wolke-innen {
+  width: 100%;
+  height: 100%;
+  animation: wolke-treiben 7s ease-in-out infinite alternate;
+}
+
+.fenster-wolke-innen svg { display: block; }
+
+@keyframes wolke-treiben {
+  from { transform: translateX(-3%); }
+  to { transform: translateX(3%); }
+}
+
+/* Rollo: oben bleibt ein Streifen mit Griff sichtbar (14 %, siehe fenster.ts). */
+.fenster-rollo {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background:
+    repeating-linear-gradient(180deg, #eee5d6 0 26px, #e2d6c2 26px 28px);
+  box-shadow: 0 6px 12px rgba(80, 60, 40, 0.25);
+  transform: translateY(-86%);
+  transition: transform 650ms cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+
+.fenster-rollo.unten { transform: translateY(0); }
+
+.fenster-rollo-griff {
+  position: absolute;
+  left: 50%;
+  bottom: 3%;
+  width: 22%;
+  height: 12px;
+  border-radius: 6px;
+  background: #c9b79a;
+  transform: translateX(-50%);
+}
+
+.fenster-schatten {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.22) 0 14%, transparent 28%);
+  box-shadow: inset 0 10px 24px rgba(50, 40, 30, 0.32), inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+
+/* Szenen-Details: Daueranimationen nur in der sichtbaren Szene. */
+.fenster-szene .sz-boot,
+.fenster-szene .sz-wal,
+.fenster-szene .sz-fontaene,
+.fenster-szene .sz-voegel,
+.fenster-szene .sz-delfin {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.fenster-szene.aktiv .sz-boot { animation: sz-schaukeln 3.4s ease-in-out infinite; }
+
+@keyframes sz-schaukeln {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(3px) rotate(3deg); }
+}
+
+.sz-fontaene { opacity: 0; transform: scaleY(0.2); }
+.feiert .sz-fontaene { animation: sz-fontaene 1.8s ease-out; }
+
+@keyframes sz-fontaene {
+  0% { opacity: 0; transform: scaleY(0.2); }
+  20% { opacity: 1; transform: scaleY(1.15); }
+  70% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: translateY(-8px) scaleY(0.9); }
+}
+
+.feiert .sz-wal { animation: sz-huepfer 1.4s ease-in-out; }
+
+@keyframes sz-huepfer {
+  0%, 100% { transform: translateY(0); }
+  35% { transform: translateY(-10px); }
+  65% { transform: translateY(2px); }
+}
+
+.sz-voegel { opacity: 0; }
+.feiert .sz-voegel { animation: sz-voegel 2.6s ease-in-out; }
+
+@keyframes sz-voegel {
+  0% { opacity: 0; transform: translate(-60px, 30px); }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate(260px, -40px); }
+}
+
+.sz-fenster rect { fill: #f4c86b; opacity: 0.75; }
+.feiert .sz-fenster rect { animation: sz-licht 1.6s ease-in-out; }
+.feiert .sz-fenster rect:nth-child(3n + 1) { animation-delay: 0.15s; }
+.feiert .sz-fenster rect:nth-child(3n + 2) { animation-delay: 0.4s; }
+
+@keyframes sz-licht {
+  0%, 100% { opacity: 0.75; }
+  30% { opacity: 0.15; }
+  60% { opacity: 1; }
+}
+
+.fenster-szene.aktiv .sz-sterne { animation: sz-funkeln 3s ease-in-out infinite alternate; }
+
+@keyframes sz-funkeln {
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+.sz-delfin { opacity: 0; transform-origin: 50% 50%; }
+.feiert .sz-delfin { animation: sz-delfin 1.8s ease-in-out; }
+
+@keyframes sz-delfin {
+  0% { opacity: 0; transform: translate(60px, 350px) rotate(-35deg); }
+  15% { opacity: 1; }
+  50% { transform: translate(140px, 250px) rotate(0deg); }
+  85% { opacity: 1; transform: translate(220px, 345px) rotate(38deg); }
+  100% { opacity: 0; transform: translate(230px, 360px) rotate(40deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fenster-wolke-innen,
+  .fenster-szene.aktiv .sz-boot,
+  .fenster-szene.aktiv .sz-sterne { animation: none; }
+}
+
+/* ---------- Spieluhr ---------- */
+
+.spieluhr-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: radial-gradient(ellipse at 50% 30%, #3d4a78 0%, #29335a 60%, #1f2746 100%);
+}
+
+.spieluhr-sterne span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fdf6ea;
+  animation: spieluhr-stern 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes spieluhr-stern {
+  from { opacity: 0.25; transform: scale(0.7); }
+  to { opacity: 0.95; transform: scale(1.1); }
+}
+
+.spieluhr-mobile {
+  position: absolute;
+  /* Eigener Stapelkontext: Die Figuren tauschen per z-index die Reihenfolge
+     (vorn/hinten) — das darf sie nie über die Abdunkelung heben. */
+  z-index: 1;
+  left: 50%;
+  top: 0;
+  width: 0;
+  height: 62%;
+}
+
+.spieluhr-haken {
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 4px;
+  height: 12vmin;
+  background: #c9b79a;
+}
+
+.spieluhr-ring {
+  position: absolute;
+  left: -36vmin;
+  top: 11vmin;
+  width: 72vmin;
+  height: 7vmin;
+  border: 0.9vmin solid #c9b79a;
+  border-radius: 50%;
+}
+
+/* Jede Figur hängt an ihrem Faden vom Ring; spieluhr.ts verschiebt sie
+   seitlich (nur transform) — eigene GPU-Ebene, damit Safari nicht neu malt. */
+.spieluhr-teil {
+  position: absolute;
+  left: -8vmin;
+  top: 14.5vmin;
+  width: 16vmin;
+  will-change: transform, opacity;
+  transform-origin: 50% 0;
+}
+
+.spieluhr-faden {
+  margin: 0 auto;
+  width: 2px;
+  height: 14vmin;
+  background: rgba(201, 183, 154, 0.8);
+}
+
+.spieluhr-teil.stern .spieluhr-faden { height: 20vmin; }
+.spieluhr-teil.wolke .spieluhr-faden { height: 10vmin; }
+.spieluhr-teil.herz .spieluhr-faden { height: 17vmin; }
+
+.spieluhr-figur {
+  width: 16vmin;
+  height: 16vmin;
+  transform-origin: 50% 0;
+  animation: spieluhr-pendeln 4s ease-in-out infinite alternate;
+}
+
+.spieluhr-figur svg { display: block; }
+
+@keyframes spieluhr-pendeln {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
+}
+
+.spieluhr-box {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-b) + 6%);
+  width: min(52vmin, 360px);
+  aspect-ratio: 200 / 110;
+  transform: translateX(-50%);
+}
+
+.spieluhr-box svg { display: block; }
+
+.spieluhr-box.hopst { animation: spieluhr-hopsen 380ms ease-out; }
+
+@keyframes spieluhr-hopsen {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  40% { transform: translateX(-50%) translateY(-6%); }
+}
+
+.spieluhr-kurbel {
+  position: absolute;
+  right: -11%;
+  top: 34%;
+  width: 22%;
+  aspect-ratio: 1;
+  will-change: transform;
+}
+
+.spieluhr-kurbel svg { display: block; }
+
+.spieluhr-dunkel {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  background: #070a16;
+  pointer-events: none;
+  opacity: 0.62;
+  transition: opacity 1.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spieluhr-sterne span,
+  .spieluhr-figur { animation: none; }
+}
+
+/* ---------- Aquarium ---------- */
+
+.aquarium-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: linear-gradient(180deg, #c6e8f1 0%, #93cadb 55%, #6fb0c8 100%);
+}
+
+.aq-licht {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(105deg, transparent 0 18%, rgba(255, 255, 255, 0.16) 22%, transparent 30%),
+    linear-gradient(100deg, transparent 0 46%, rgba(255, 255, 255, 0.12) 50%, transparent 57%),
+    linear-gradient(110deg, transparent 0 72%, rgba(255, 255, 255, 0.1) 76%, transparent 82%);
+  pointer-events: none;
+}
+
+.aq-boden {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+}
+
+.aq-boden svg { display: block; }
+
+.aq-stein {
+  position: absolute;
+  bottom: 9%;
+  border-radius: 50% 50% 40% 40%;
+  background: #a6a39b;
+}
+
+.aq-stein.s1 { left: 32%; width: 9vmin; height: 5vmin; }
+.aq-stein.s2 { left: 38%; width: 6vmin; height: 4vmin; background: #b9b5ac; }
+.aq-stein.s3 { left: 58%; width: 8vmin; height: 4.5vmin; }
+
+.aq-pflanze {
+  position: absolute;
+  bottom: 6%;
+  width: 6vmin;
+  height: var(--h, 30%);
+  transform-origin: 50% 100%;
+  animation: aq-wiegen 5s ease-in-out infinite alternate;
+}
+
+.aq-pflanze svg { display: block; }
+
+@keyframes aq-wiegen {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
+}
+
+.aq-blasenstrom {
+  position: absolute;
+  bottom: 12%;
+  width: 0;
+  height: 0;
+}
+
+.aq-blasenstrom span {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  opacity: 0;
+  animation: aq-blase 6s ease-in infinite;
+  animation-delay: inherit;
+}
+
+.aq-blasenstrom span:nth-child(2) { margin-left: 8px; width: 10px; height: 10px; animation-delay: -2s; }
+.aq-blasenstrom span:nth-child(3) { margin-left: -6px; width: 8px; height: 8px; animation-delay: -4s; }
+
+@keyframes aq-blase {
+  0% { opacity: 0; transform: translateY(0); }
+  10% { opacity: 1; }
+  90% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(10px, -70vh); }
+}
+
+.aq-fische,
+.aq-effekte {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* JS bewegt die Fische in jedem Bild — eigene GPU-Ebene, kein Filter
+   (siehe Fallen in CLAUDE.md). */
+.aq-fisch {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 400ms ease-out;
+}
+
+.aquarium-stage.bereit .aq-fisch { opacity: 1; }
+.aq-fisch svg { display: block; overflow: visible; }
+
+.aq-schwanz {
+  transform-box: fill-box;
+  transform-origin: 100% 50%;
+  animation: aq-schwanz 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes aq-schwanz {
+  from { transform: scaleY(0.82) rotate(-8deg); }
+  to { transform: scaleY(1) rotate(8deg); }
+}
+
+.aq-welle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.aq-welle i {
+  position: absolute;
+  left: -60px;
+  top: -60px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  animation: aq-ring 900ms ease-out forwards;
+}
+
+@keyframes aq-ring {
+  0% { opacity: 0.9; transform: scale(0.2); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+.aq-welle b {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  animation: aq-blub 1.2s ease-out forwards;
+}
+
+.aq-welle b:nth-of-type(2) { margin-left: 16px; width: 11px; height: 11px; animation-delay: 0.1s; }
+.aq-welle b:nth-of-type(3) { margin-left: -14px; width: 9px; height: 9px; animation-delay: 0.2s; }
+
+@keyframes aq-blub {
+  0% { opacity: 0; transform: translateY(0); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-140px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-pflanze,
+  .aq-schwanz,
+  .aq-blasenstrom span { animation: none; }
+}
+
+/* ---------- Kuckuck ---------- */
+
+.kuckuck-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.35) 0 2px, transparent 3px) 0 0 / 48px 48px,
+    linear-gradient(180deg, #f7e7d0 0%, #f0dcbf 100%);
+}
+
+.kuckuck-raster {
+  position: absolute;
+  inset: calc(var(--safe-t) + 4%) calc(var(--safe-r) + 3%) calc(var(--safe-b) + 4%) calc(var(--safe-l) + 3%);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 3vmin;
+}
+
+@media (orientation: portrait) {
+  .kuckuck-raster {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+.kk-versteck {
+  position: relative;
+  /* Tiergröße richtet sich nach der kürzeren Seite des Verstecks (cqmin). */
+  container-type: size;
+}
+
+.kk-leine {
+  position: absolute;
+  left: -3vmin;
+  right: -3vmin;
+  top: 6%;
+  height: 3px;
+  background: #a9835e;
+  border-radius: 2px;
+}
+
+.kk-tier {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 24vmin;
+  width: 76cqmin;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+}
+
+.kk-tier svg { display: block; overflow: visible; }
+
+.kk-pfote {
+  transform-box: fill-box;
+  transform-origin: 30% 90%;
+}
+
+.kk-tier.winkt { animation: kk-gucken 520ms cubic-bezier(0.34, 1.4, 0.64, 1); }
+.kk-tier.winkt .kk-pfote { animation: kk-winken 0.42s ease-in-out 0.25s 4 alternate; }
+
+@keyframes kk-gucken {
+  0% { transform: translate(-50%, -38%) scale(0.88); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes kk-winken {
+  from { transform: rotate(-12deg) translateY(0); }
+  to { transform: rotate(22deg) translateY(-14%); }
+}
+
+/* Das Tuch hängt an der Leine und wird beim Aufdecken nach oben
+   zusammengerafft (nur transform). */
+.kk-tuch {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  top: 6%;
+  bottom: 0;
+  border-radius: 6px 6px 22px 22px;
+  background:
+    radial-gradient(circle, var(--muster) 0 18%, transparent 20%) 0 0 / 34px 34px,
+    linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0 2%, transparent 8% 92%, rgba(0, 0, 0, 0.06) 98%),
+    var(--tuch);
+  box-shadow: 0 8px 16px rgba(90, 60, 40, 0.18);
+  transform-origin: 50% 0;
+  transition: transform 520ms cubic-bezier(0.5, 0, 0.7, 1);
+}
+
+.kk-versteck.offen .kk-tuch {
+  transform: scaleY(0.14);
+  transition: transform 300ms cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+
+.kk-klammer {
+  position: absolute;
+  z-index: 1;
+  top: calc(6% - 10px);
+  width: 12px;
+  height: 26px;
+  border-radius: 3px;
+  background: #f4c86b;
+  box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.08);
+}
+
+.kk-klammer.l { left: 20%; }
+.kk-klammer.r { right: 20%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kk-tier.winkt,
+  .kk-tier.winkt .kk-pfote { animation: none; }
 }

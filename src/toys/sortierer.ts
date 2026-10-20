@@ -341,6 +341,7 @@ function unmount(): void {
 
 export const sortierer: Toy = {
   id: 'sortierer',
+  name: 'Formen-Sortierer',
   accent: '#e0a458',
   tileIcon,
   mount,

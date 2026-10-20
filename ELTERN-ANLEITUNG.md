@@ -21,7 +21,7 @@ Offline-Speicher des iPads.
 1. App schließen (Home-Wisch nach oben).
 2. **Flugmodus einschalten** (Kontrollzentrum).
 3. Spielkiste über das Home-Bildschirm-Symbol erneut öffnen.
-4. Alle zwölf Spielzeuge sollten normal funktionieren — dann ist die App bereit für
+4. Alle sechzehn Spielzeuge sollten normal funktionieren — dann ist die App bereit für
    unterwegs, im Auto, im Flugzeug, überall ohne Internet.
 
 *Hinweis:* Solange die App vom Home-Bildschirm gestartet wird (nicht im normalen
@@ -43,12 +43,14 @@ Damit ein Wisch nach oben die App nicht versehentlich verlässt:
 Besonders wichtig bei den Patsch-Spielen (Trommeln, Bälle, Laubhaufen): Mit vier
 oder fünf Fingern gleichzeitig löst das iPad sonst eigene Gesten aus (zum
 Home-Bildschirm, App wechseln). Im Geführten Zugriff sind diese Gesten gesperrt.
+Alternativ dauerhaft abschalten: **Einstellungen → Multitasking & Gesten →
+„Gesten" aus** (bei manchen iPadOS-Versionen unter „Home-Bildschirm & Multitasking").
 
 Der **Zurück-Pfeil** oben links reagiert nur auf ein kurzes Antippen mit einem
 Finger — ein Patscher mit der ganzen Hand, der zufällig auch den Pfeil trifft,
 holt das Kind nicht aus dem Spiel.
 
-## 5. Die zwölf Spielzeuge
+## 5. Die sechzehn Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,
   Reißverschluss, Windrädchen, Klapptürchen mit Tieren, Zahnräder, Klingel,
@@ -84,15 +86,45 @@ wild wischen und hämmern ist ausdrücklich erwünscht, nichts muss getroffen we
   hoch, sie segeln langsam herunter und bilden neue Haufen. Unter einem Haufen
   schläft ein Igel, der beim Antippen aufwacht und hüpft.
 
+Vier weitere, gedacht für lange Flüge:
+
+- **Flugzeugfenster** — Wolken vor dem Fenster wegwischen, darunter erscheinen
+  Meer mit Wal, Berge, Stadt bei Nacht oder eine Insel. Ist alles frei, passiert
+  etwas (Wal-Fontäne, Vogelschwarm, Lichter, Delfin). Nach einer Weile ziehen die
+  Wolken wieder zu, dann kommt eine neue Landschaft. Oben lässt sich das Rollo
+  herunterziehen — wie im echten Flugzeug.
+- **Spieluhr** — jeder Tipp zieht sie auf: ein Schlaflied spielt, das Mobile mit
+  Mond, Stern und Schaf dreht sich. Läuft sie ab, wird sie langsamer, leiser und
+  der Bildschirm dunkler — gedacht zum Einschlafen. Lieder: „Guten Abend, gut'
+  Nacht", „Morgen kommt der Weihnachtsmann", „Alle meine Entchen".
+- **Aquarium** — Fische schwimmen umher und kommen zum Finger, ein Patscher lässt
+  sie auseinanderflitzen, jeder Tipp macht Wellen und Blubberblasen.
+- **Kuckuck** — sechs Tücher an einer Wäscheleine; Antippen, Patschen oder
+  Drüberwischen hebt sie an, ein Tier guckt heraus, winkt und ruft „Kuck-uck".
+  Dahinter versteckt sich jedes Mal ein anderes Tier.
+
 Alles bleibt gespeichert (außer die kurzen Klang-Kleckse-Positionen) — beim
 nächsten Öffnen ist alles wieder da, wie das Kind es verlassen hat.
 
 ## 6. Elternbereich
 
 In der Spielzimmer-Ansicht (Startbildschirm der App) ganz unten rechts ist ein
-kleiner, unauffälliger Punkt. **3 Sekunden gedrückt halten**, um Lautstärke
-einzustellen oder alle gespeicherten Spielstände zurückzusetzen. Für ein
-2-jähriges Kind praktisch nicht zufällig auslösbar.
+kleiner, unauffälliger Punkt. **3 Sekunden gedrückt halten**. Für ein
+2-jähriges Kind praktisch nicht zufällig auslösbar. Dort gibt es:
+
+- **Offline-Check** ganz oben: zeigt „Bereit für offline ✓", wenn wirklich alles
+  auf dem iPad gespeichert ist — **vor dem Abflug einmal nachsehen.**
+- **Lautstärke**
+- **Nachtflug-Modus:** dimmt alle Spiele stark ab. Blendet in der dunklen Kabine
+  weder das Kind noch die Nachbarn und spart auf dem iPad-Pro-Bildschirm Akku.
+- **Spiele auf der Startseite:** antippen blendet ein Spiel aus oder wieder ein
+  (z. B. abends nur die ruhigen). Die übrigen Kacheln werden dann größer.
+- **Test-Ton** mit Ton-Status, falls einmal nichts zu hören ist.
+- **Spielstände zurücksetzen** (Einstellungen bleiben erhalten).
+
+Akku schonen passiert von selbst: Wird die App 90 Sekunden lang nicht berührt,
+halten alle Animationen an; die erste Berührung lässt alles weiterlaufen. Die
+Spieluhr spielt dabei bewusst weiter, bis sie abgelaufen ist.
 
 ## 7. Falls etwas nicht passt
 

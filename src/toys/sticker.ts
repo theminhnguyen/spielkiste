@@ -409,6 +409,7 @@ function unmount(): void {
 
 export const sticker: Toy = {
   id: 'sticker',
+  name: 'Sticker-Szene',
   accent: '#9ec99f',
   tileIcon,
   mount,

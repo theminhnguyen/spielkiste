@@ -4,12 +4,13 @@ Eine ruhige, werbefreie Spiel-App für 2-Jährige — inspiriert von den Design-
 von Pok Pok (Montessori, low-stimulation, open-ended play), aber komplett eigenständig
 umgesetzt mit eigenen Grafiken und Sounds.
 
-**Status: Fertig (v1.1.3)** — alle Phasen aus [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md)
-abgeschlossen. Spielzimmer + 12 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen,
+**Status: Fertig (v1.2.0)** — alle Phasen aus [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md)
+abgeschlossen. Spielzimmer + 16 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen,
 Formen-Sortierer, Seifenblasen, Putzen, Sticker-Szene, Wimmelbild,
-Gute-Nacht-Szene, dazu zum Austoben Patsch-Trommeln, Bälle schubsen und
-Laubhaufen), komplett offlinefähig, Zustand bleibt gespeichert — auch
-praktisch für lange Flüge.
+Gute-Nacht-Szene, zum Austoben Patsch-Trommeln, Bälle schubsen und
+Laubhaufen, für lange Flüge Flugzeugfenster, Spieluhr, Aquarium und Kuckuck),
+komplett offlinefähig, Zustand bleibt gespeichert, Nachtflug-Modus und
+Offline-Check im Elternbereich.
 
 **Live:** https://theminhnguyen.github.io/spielkiste/
 

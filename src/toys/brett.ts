@@ -828,6 +828,7 @@ function unmount(): void {
 
 export const brett: Toy = {
   id: 'brett',
+  name: 'Fummelbrett',
   accent: '#e0a458',
   tileIcon,
   mount,

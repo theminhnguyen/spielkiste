@@ -169,6 +169,7 @@ function unmount(): void {
 
 export const gutenacht: Toy = {
   id: 'gutenacht',
+  name: 'Gute-Nacht-Szene',
   accent: '#7ea3c9',
   tileIcon,
   mount,

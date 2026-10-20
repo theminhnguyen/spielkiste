@@ -1,5 +1,6 @@
 import type { Toy } from './types';
 import { playTone, PENTATONIC_HZ } from '../audio';
+import { onRuheWechsel } from '../ruhe';
 
 const tileIcon = `
 <svg viewBox="0 0 120 120" width="100%" height="100%">
@@ -52,11 +53,19 @@ function mount(container: HTMLElement): void {
   // Startfüllung, damit sofort etwas da ist statt einer leeren Fläche.
   for (let i = 0; i < 6; i++) spawnBubble(0.3 + Math.random() * 0.5);
 
-  spawnTimer = window.setInterval(() => spawnBubble(), SPAWN_INTERVAL_MS);
-  cleanup.push(() => {
+  const stopSpawn = () => {
     if (spawnTimer !== null) window.clearInterval(spawnTimer);
     spawnTimer = null;
-  });
+  };
+  const startSpawn = () => {
+    stopSpawn();
+    spawnTimer = window.setInterval(() => spawnBubble(), SPAWN_INTERVAL_MS);
+  };
+  startSpawn();
+  cleanup.push(stopSpawn);
+  // Akku schonen: Im Ruhezustand keine neuen Blasen — die vorhandenen halten
+  // per CSS ohnehin an (siehe html.ruhe in style.css).
+  cleanup.push(onRuheWechsel((ruhe) => (ruhe ? stopSpawn() : startSpawn())));
 
   // Antippen irgendwo auf der Fläche: Blase unter dem Finger zerplatzt.
   on(stageEl, 'pointerdown', (e) => {
@@ -135,6 +144,7 @@ function unmount(): void {
 
 export const blasen: Toy = {
   id: 'blasen',
+  name: 'Seifenblasen',
   accent: '#7ec8d8',
   tileIcon,
   mount,

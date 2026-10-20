@@ -640,6 +640,7 @@ function unmount(): void {
 
 export const laub: Toy = {
   id: 'laub',
+  name: 'Laubhaufen',
   accent: '#e0a458',
   tileIcon,
   mount,
