@@ -1,6 +1,6 @@
 import type { Toy } from './types';
 import { loadState, saveState } from '../state';
-import { playWhoosh, playGlide, playTone, playZipSound, PENTATONIC_HZ } from '../audio';
+import { playWhoosh, playGlide, playTone, playZipSound, playDrum, playBounce, PENTATONIC_HZ } from '../audio';
 
 const tileIcon = `
 <svg viewBox="0 0 120 120" width="100%" height="100%">
@@ -22,8 +22,35 @@ const WOLKEN: Array<[number, number]> = [
   [16, 88], [58, 90], [90, 84],
 ];
 
-const SZENEN = ['meer', 'berge', 'stadt', 'insel'] as const;
+const SZENEN = ['meer', 'berge', 'stadt', 'insel', 'bauernhof', 'ballons', 'eis', 'zug', 'regenbogen', 'flughafen'] as const;
 type Szene = (typeof SZENEN)[number];
+
+/** Heißluftballon um (0|0) — Hülle, Mittelstreifen, Seile, Korb. */
+function ballon(farbe: string, streifen: string): string {
+  return `
+    <path d="M0 -42 C24 -42 34 -24 34 -6 C34 12 14 24 8 32 H-8 C-14 24 -34 12 -34 -6 C-34 -24 -24 -42 0 -42 Z" fill="${farbe}"/>
+    <path d="M0 -42 C12 -30 14 10 8 32 H-8 C-14 10 -12 -30 0 -42 Z" fill="${streifen}"/>
+    <path d="M-8 32 L-7 44 M8 32 L7 44" stroke="#a9835e" stroke-width="2"/>
+    <rect x="-9" y="44" width="18" height="12" rx="2.5" fill="#a9835e"/>`;
+}
+
+/** Pinguin um (0|0), Füße bei y = 20. */
+function pinguin(klasse: string): string {
+  return `
+    <g class="sz-pingu ${klasse}">
+      <ellipse cx="-13" cy="4" rx="4" ry="11" fill="#2c3e50" transform="rotate(14 -13 4)"/>
+      <ellipse cx="13" cy="4" rx="4" ry="11" fill="#2c3e50" transform="rotate(-14 13 4)"/>
+      <ellipse cx="0" cy="0" rx="13" ry="20" fill="#2c3e50"/>
+      <ellipse cx="0" cy="5" rx="9" ry="14" fill="#fffaf2"/>
+      <circle cx="-4" cy="-10" r="2.6" fill="#fffaf2"/><circle cx="4" cy="-10" r="2.6" fill="#fffaf2"/>
+      <circle cx="-4" cy="-10" r="1.3" fill="#2c3e50"/><circle cx="4" cy="-10" r="1.3" fill="#2c3e50"/>
+      <path d="M-4 -5 L0 0 L4 -5 Z" fill="#e0a458"/>
+      <ellipse cx="-6" cy="20" rx="5" ry="2.5" fill="#e0a458"/><ellipse cx="6" cy="20" rx="5" ry="2.5" fill="#e0a458"/>
+    </g>`;
+}
+
+/** Bahnschwellen unter dem Gleis. */
+const SCHWELLEN = Array.from({ length: 13 }, (_, i) => `<rect x="${4 + i * 24}" y="304" width="12" height="5" fill="#c9b79a"/>`).join('');
 
 const SZENE_SVG: Record<Szene, string> = {
   meer: `
@@ -108,6 +135,149 @@ const SZENE_SVG: Record<Szene, string> = {
       </g>
       <path d="M30 240 q10 -6 20 0 M220 250 q10 -6 20 0 M60 360 q10 -6 20 0 M230 350 q10 -6 20 0" stroke="#e8f6f5" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
     </svg>`,
+  bauernhof: `
+    <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+      <rect width="300" height="400" fill="#d8ecf6"/>
+      <circle cx="234" cy="70" r="22" fill="#f7d570"/>
+      <path d="M-20 196 C50 168 120 184 190 174 C240 166 280 176 320 186 L320 400 L-20 400 Z" fill="#b5d99c"/>
+      <path d="M150 192 L320 184 L320 226 L160 236 Z" fill="#ecd68f"/>
+      <path d="M170 200 H300 M168 212 H300 M166 224 H300" stroke="#dcc278" stroke-width="3" stroke-linecap="round"/>
+      <path d="M-20 244 C80 226 200 248 320 232 L320 400 L-20 400 Z" fill="#9ec98a"/>
+      <rect x="36" y="196" width="60" height="46" fill="#d9675f"/>
+      <path d="M30 200 L66 172 L102 200 Z" fill="#a9835e"/>
+      <rect x="56" y="216" width="20" height="26" fill="#fffaf2"/>
+      <path d="M56 216 L76 242 M76 216 L56 242" stroke="#d9675f" stroke-width="3"/>
+      <g stroke="#fffaf2" stroke-width="4" stroke-linecap="round">
+        <path d="M110 252 H292 M110 262 H292"/>
+        <path d="M116 246 V268 M150 246 V268 M184 246 V268 M218 246 V268 M252 246 V268 M286 246 V268"/>
+      </g>
+      <g fill="#fffaf2"><circle cx="40" cy="290" r="3.5"/><circle cx="262" cy="340" r="3.5"/><circle cx="76" cy="330" r="3"/><circle cx="236" cy="372" r="3"/></g>
+      <g class="sz-kuh">
+        <rect x="150" y="300" width="7" height="22" rx="3" fill="#f3ede2"/>
+        <rect x="190" y="300" width="7" height="22" rx="3" fill="#f3ede2"/>
+        <path d="M143 288 q-8 6 -6 16" stroke="#fffaf2" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="172" cy="292" rx="32" ry="19" fill="#fffaf2"/>
+        <ellipse cx="162" cy="286" rx="10" ry="8" fill="#4a4032"/>
+        <ellipse cx="184" cy="298" rx="7" ry="5" fill="#4a4032"/>
+        <path d="M202 274 l-3 -9 M218 273 l4 -9" stroke="#e0a458" stroke-width="3.5" stroke-linecap="round"/>
+        <ellipse cx="210" cy="282" rx="14" ry="12" fill="#fffaf2"/>
+        <ellipse cx="214" cy="290" rx="9" ry="6.5" fill="#f1b8c0"/>
+        <circle cx="206" cy="278" r="2.4" fill="#2c3e50"/><circle cx="216" cy="278" r="2.4" fill="#2c3e50"/>
+      </g>
+      <g class="sz-traktor">
+        <rect x="96" y="350" width="46" height="18" rx="4" fill="#e0a458"/>
+        <rect x="96" y="328" width="24" height="26" rx="3" fill="#e0a458"/>
+        <rect x="100" y="332" width="16" height="12" rx="2" fill="#cfe7f5"/>
+        <rect x="132" y="336" width="4" height="14" fill="#4a4032"/>
+        <circle cx="110" cy="370" r="13" fill="#4a4032"/><circle cx="110" cy="370" r="5" fill="#c9b79a"/>
+        <circle cx="136" cy="373" r="8" fill="#4a4032"/><circle cx="136" cy="373" r="3" fill="#c9b79a"/>
+      </g>
+    </svg>`,
+  ballons: `
+    <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+      <rect width="300" height="400" fill="#d6ecf7"/>
+      <rect y="170" width="300" height="230" fill="#e4f2f9"/>
+      <circle cx="70" cy="72" r="20" fill="#f7d570"/>
+      <path d="M-20 290 C40 260 100 270 150 285 C200 300 250 262 320 270 L320 400 L-20 400 Z" fill="#a8d18f"/>
+      <path d="M-20 330 C70 310 160 340 320 318 L320 400 L-20 400 Z" fill="#8fc27a"/>
+      <g fill="#7fb99e"><circle cx="70" cy="318" r="10"/><circle cx="86" cy="322" r="8"/><circle cx="236" cy="300" r="9"/><circle cx="250" cy="304" r="7"/></g>
+      <g transform="translate(206 236) scale(0.55)"><g class="sz-ballon"><g class="sz-schweben" style="animation-delay:-2.6s">${ballon('#e0a458', '#e88a9a')}</g></g></g>
+      <g transform="translate(200 116) scale(0.75)"><g class="sz-ballon"><g class="sz-schweben" style="animation-delay:-1.3s">${ballon('#7ea3c9', '#fffaf2')}</g></g></g>
+      <g transform="translate(100 166)"><g class="sz-ballon"><g class="sz-schweben">${ballon('#e88a9a', '#f7d570')}</g></g></g>
+    </svg>`,
+  eis: `
+    <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+      <rect width="300" height="400" fill="#dcecf5"/>
+      <circle cx="230" cy="64" r="20" fill="#f7e3a0"/>
+      <path d="M0 202 L34 150 L56 170 L80 128 L122 202 Z" fill="#f4f9fc"/>
+      <path d="M80 128 L96 202 H122 Z M34 150 L44 202 H56 Z" fill="#d6e6f0"/>
+      <path d="M196 202 L224 164 L244 178 L268 148 L300 202 Z" fill="#f4f9fc"/>
+      <path d="M268 148 L280 202 H300 Z" fill="#d6e6f0"/>
+      <rect y="200" width="300" height="200" fill="#5f8fb5"/>
+      <rect y="330" width="300" height="70" fill="#557fa3"/>
+      <path d="M20 230 q10 -6 20 0 M240 236 q10 -6 20 0 M50 350 q10 -6 20 0 M210 360 q10 -6 20 0" stroke="#dcecf5" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <path d="M66 290 C76 276 222 274 238 290 C242 302 222 308 150 308 C90 308 62 302 66 290 Z" fill="#f4f9fc"/>
+      <path d="M66 292 C90 304 210 306 238 292 L234 302 C210 314 90 314 70 302 Z" fill="#cfe2ee"/>
+      <g transform="translate(118 268)">${pinguin('p1')}</g>
+      <g transform="translate(160 264)">${pinguin('p2')}</g>
+      <g transform="translate(196 276) scale(0.6)">${pinguin('p3')}</g>
+    </svg>`,
+  zug: `
+    <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+      <rect width="300" height="400" fill="#d8ecf6"/>
+      <circle cx="64" cy="66" r="20" fill="#f7d570"/>
+      <path d="M-20 250 C40 200 110 210 160 236 C210 210 260 196 320 220 L320 400 L-20 400 Z" fill="#b5d99c"/>
+      <path d="M-20 330 C80 310 200 330 320 316 L320 400 L-20 400 Z" fill="#9ec98a"/>
+      <rect x="232" y="228" width="6" height="20" fill="#a9835e"/><circle cx="235" cy="222" r="14" fill="#7fb99e"/>
+      <rect x="40" y="236" width="5" height="16" fill="#a9835e"/><circle cx="42" cy="230" r="11" fill="#7fb99e"/>
+      ${SCHWELLEN}
+      <rect y="300" width="300" height="5" fill="#a9835e"/>
+      <g class="sz-zug">
+        <g class="sz-dampf" fill="#fffaf2"><circle cx="232" cy="244" r="7"/><circle cx="242" cy="230" r="9"/><circle cx="256" cy="214" r="11"/></g>
+        <rect x="60" y="266" width="50" height="28" rx="4" fill="#7ea3c9"/>
+        <rect x="68" y="272" width="12" height="10" rx="2" fill="#fffaf2"/><rect x="88" y="272" width="12" height="10" rx="2" fill="#fffaf2"/>
+        <rect x="110" y="286" width="8" height="3" fill="#4a4032"/>
+        <rect x="118" y="266" width="50" height="28" rx="4" fill="#e0a458"/>
+        <rect x="126" y="272" width="12" height="10" rx="2" fill="#fffaf2"/><rect x="146" y="272" width="12" height="10" rx="2" fill="#fffaf2"/>
+        <rect x="168" y="286" width="8" height="3" fill="#4a4032"/>
+        <rect x="176" y="262" width="34" height="32" rx="3" fill="#d9675f"/>
+        <rect x="182" y="268" width="20" height="12" rx="2" fill="#fffaf2"/>
+        <rect x="206" y="274" width="36" height="20" rx="6" fill="#d9675f"/>
+        <rect x="226" y="256" width="9" height="18" rx="2" fill="#4a4032"/>
+        <rect x="172" y="258" width="42" height="6" rx="3" fill="#4a4032"/>
+        <circle cx="243" cy="282" r="3" fill="#f7d570"/>
+        <g fill="#4a4032">
+          <circle cx="72" cy="296" r="6"/><circle cx="98" cy="296" r="6"/>
+          <circle cx="130" cy="296" r="6"/><circle cx="156" cy="296" r="6"/>
+          <circle cx="190" cy="293" r="8"/><circle cx="226" cy="296" r="6"/>
+        </g>
+      </g>
+    </svg>`,
+  regenbogen: `
+    <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+      <rect width="300" height="400" fill="#d6ecf7"/>
+      <g class="sz-bogen" fill="none" stroke-width="11">
+        <path d="M20 270 A130 130 0 0 1 280 270" stroke="#e88a9a"/>
+        <path d="M31 270 A119 119 0 0 1 269 270" stroke="#e0a458"/>
+        <path d="M42 270 A108 108 0 0 1 258 270" stroke="#f7d570"/>
+        <path d="M53 270 A97 97 0 0 1 247 270" stroke="#9ec99f"/>
+        <path d="M64 270 A86 86 0 0 1 236 270" stroke="#7ea3c9"/>
+        <path d="M75 270 A75 75 0 0 1 225 270" stroke="#b49bd1"/>
+      </g>
+      <g fill="#fffaf2"><circle cx="34" cy="262" r="16"/><circle cx="54" cy="268" r="12"/><circle cx="266" cy="262" r="16"/><circle cx="246" cy="268" r="12"/></g>
+      <path d="M-20 270 C60 256 140 276 200 266 C250 258 290 266 320 270 L320 400 L-20 400 Z" fill="#a8d18f"/>
+      <g><circle cx="44" cy="326" r="4" fill="#e88a9a"/><circle cx="236" cy="350" r="4" fill="#f7d570"/><circle cx="214" cy="306" r="3.5" fill="#fffaf2"/><circle cx="80" cy="366" r="4" fill="#b49bd1"/><circle cx="262" cy="316" r="3.5" fill="#e88a9a"/></g>
+      <g class="sz-hase">
+        <ellipse cx="142" cy="290" rx="5" ry="16" fill="#e9e1d4"/><ellipse cx="156" cy="290" rx="5" ry="16" fill="#e9e1d4"/>
+        <ellipse cx="142" cy="292" rx="2.2" ry="10" fill="#f1b8c0"/><ellipse cx="156" cy="292" rx="2.2" ry="10" fill="#f1b8c0"/>
+        <circle cx="149" cy="314" r="15" fill="#e9e1d4"/>
+        <circle cx="144" cy="311" r="2.3" fill="#2c3e50"/><circle cx="154" cy="311" r="2.3" fill="#2c3e50"/>
+        <circle cx="149" cy="318" r="2.2" fill="#e88a9a"/>
+      </g>
+      <g fill="#7fb99e"><circle cx="128" cy="330" r="18"/><circle cx="150" cy="324" r="22"/><circle cx="172" cy="330" r="18"/><rect x="110" y="330" width="80" height="18" rx="9"/></g>
+    </svg>`,
+  flughafen: `
+    <svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+      <rect width="300" height="400" fill="#d6ecf7"/>
+      <circle cx="236" cy="70" r="20" fill="#f7d570"/>
+      <rect y="260" width="300" height="140" fill="#a8d18f"/>
+      <rect x="44" y="206" width="14" height="56" fill="#c9b79a"/>
+      <path d="M34 196 H68 L62 212 H40 Z" fill="#7ea3c9"/>
+      <rect x="38" y="188" width="26" height="9" rx="2" fill="#4a4032"/>
+      <rect x="180" y="228" width="110" height="34" fill="#e9e1d4"/>
+      <g fill="#7ea3c9"><rect x="190" y="238" width="14" height="10" rx="2"/><rect x="212" y="238" width="14" height="10" rx="2"/><rect x="234" y="238" width="14" height="10" rx="2"/><rect x="256" y="238" width="14" height="10" rx="2"/></g>
+      <rect y="296" width="300" height="42" fill="#8a8f99"/>
+      <path d="M8 317 H292" stroke="#fffaf2" stroke-width="3" stroke-dasharray="16 12"/>
+      <g class="sz-flieger">
+        <path d="M96 290 L88 266 H102 L118 290 Z" fill="#e88a9a"/>
+        <path d="M90 300 C90 292 100 288 112 288 H186 C198 288 206 294 206 300 C206 306 198 310 186 310 H112 C100 310 90 306 90 300 Z" fill="#fffaf2"/>
+        <rect x="104" y="302" width="86" height="3" fill="#e88a9a"/>
+        <g fill="#7ea3c9"><circle cx="124" cy="296" r="2.6"/><circle cx="134" cy="296" r="2.6"/><circle cx="144" cy="296" r="2.6"/><circle cx="154" cy="296" r="2.6"/><circle cx="164" cy="296" r="2.6"/><circle cx="174" cy="296" r="2.6"/></g>
+        <path d="M190 291 C197 292 202 295 204 298 H190 Z" fill="#7ea3c9"/>
+        <path d="M132 302 L162 302 L148 322 H134 Z" fill="#c9d6e3"/>
+        <circle cx="120" cy="314" r="4" fill="#4a4032"/><circle cx="186" cy="314" r="4" fill="#4a4032"/>
+      </g>
+    </svg>`,
 };
 
 /** Wolke in einem Farbton — überlappende Wolken in leicht verschiedenen Weißtönen wirken plastisch. */
@@ -124,10 +294,13 @@ function wolkeSvg(farbe: string): string {
 const WOLKEN_FARBEN = ['#ffffff', '#f3f7fb', '#e9f0f6', '#fbfcfe'];
 
 interface FensterState {
-  szene: number;
+  szene: Szene;
+  gespiegelt: boolean;
+  /** Noch nicht gezeigte Landschaften der aktuellen Runde. */
+  reihe: Szene[];
 }
 const STATE_KEY = 'fenster';
-const STATE_VERSION = 1;
+const STATE_VERSION = 2;
 
 /** Ohne Berührung so lange warten, bis die Wolken zurückziehen. */
 const RUECKKEHR_MS = 6000;
@@ -145,12 +318,14 @@ let stageEl: HTMLElement | null = null;
 let innenEl: HTMLElement | null = null;
 let dunstEl: HTMLElement | null = null;
 let rolloEl: HTMLElement | null = null;
-let szenenEls: HTMLElement[] = [];
+let szeneEl: HTMLElement | null = null;
 let wolken: WolkeRt[] = [];
 let cleanup: Array<() => void> = [];
 let timers = new Set<number>();
 let rueckkehrTimer: number | null = null;
-let szene = 0;
+let szene: Szene = 'meer';
+let gespiegelt = false;
+let reihe: Szene[] = [];
 let ganzFrei = false;
 let rolloUnten = false;
 let lastRolloAt = 0;
@@ -186,13 +361,20 @@ function mount(container: HTMLElement): void {
   rueckkehrTimer = null;
   ganzFrei = false;
   rolloUnten = false;
-  szene = loadState<FensterState>(STATE_KEY, STATE_VERSION, { szene: 0 }).szene % SZENEN.length;
+  const gespeichert = loadState<FensterState | null>(STATE_KEY, STATE_VERSION, null);
+  reihe = (gespeichert?.reihe ?? []).filter((s) => SZENEN.includes(s));
+  if (gespeichert && SZENEN.includes(gespeichert.szene)) {
+    szene = gespeichert.szene;
+    gespiegelt = gespeichert.gespiegelt;
+  } else {
+    waehleNaechste();
+  }
 
   container.innerHTML = `
     <div class="fenster-stage" id="fensterStage">
       <div class="fenster">
         <div class="fenster-innen" id="fensterInnen">
-          ${SZENEN.map((s, i) => `<div class="fenster-szene sz-${s}${i === szene ? ' aktiv' : ''}">${SZENE_SVG[s]}</div>`).join('')}
+          <div class="fenster-szene" id="fensterSzene"></div>
           <div class="fenster-dunst" id="fensterDunst"></div>
           ${WOLKEN.map(
             ([x, y], i) => `
@@ -211,7 +393,8 @@ function mount(container: HTMLElement): void {
   innenEl = container.querySelector<HTMLElement>('#fensterInnen')!;
   dunstEl = container.querySelector<HTMLElement>('#fensterDunst')!;
   rolloEl = container.querySelector<HTMLElement>('#fensterRollo')!;
-  szenenEls = [...container.querySelectorAll<HTMLElement>('.fenster-szene')];
+  szeneEl = container.querySelector<HTMLElement>('#fensterSzene')!;
+  zeigeSzene();
   wolken = WOLKEN.map(([x, y], i) => ({
     el: container.querySelector<HTMLElement>(`.fenster-wolke[data-i="${i}"]`)!,
     x,
@@ -324,28 +507,70 @@ function feiern(): void {
   const now = performance.now();
   if (now - lastFeierAt < 1600) return;
   lastFeierAt = now;
-  const el = szenenEls[szene];
+  const el = szeneEl;
   if (!el) return;
   el.classList.remove('feiert');
   void el.offsetWidth;
   el.classList.add('feiert');
   later(() => el.classList.remove('feiert'), 2600);
+  FEIER_KLANG[szene]();
+}
 
-  const s = SZENEN[szene];
-  if (s === 'meer') {
+/** Klang zur kleinen Überraschung jeder Landschaft (Bewegung: .feiert in style.css). */
+const FEIER_KLANG: Record<Szene, () => void> = {
+  meer: () => {
     playGlide(170, 115, 0.7, 0.24);
     later(() => playGlide(115, 190, 0.6, 0.2), 650);
-  } else if (s === 'berge') {
+  },
+  berge: () => {
     [0, 160, 380].forEach((ms, i) => later(() => playGlide(1700 + i * 200, 2500 + i * 150, 0.09, 0.07), ms));
-  } else if (s === 'stadt') {
+  },
+  stadt: () => {
     [5, 6, 7, 5].forEach((note, i) =>
       later(() => playTone({ freq: PENTATONIC_HZ[note], duration: 0.2, attack: 0.01, release: 0.6, gain: 0.16 }), i * 180),
     );
-  } else {
+  },
+  insel: () => {
     playWhoosh();
     later(() => playGlide(420, 900, 0.3, 0.12), 300);
-  }
-}
+  },
+  bauernhof: () => {
+    // „Muh" — tief, erst leicht steigend, dann lang fallend.
+    playGlide(150, 190, 0.25, 0.2, 'triangle');
+    later(() => playGlide(190, 135, 0.7, 0.2, 'triangle'), 240);
+    [0, 130, 260, 390, 520, 650].forEach((ms) => later(() => playDrum(75, 0.12, 0.15), 900 + ms));
+  },
+  ballons: () => {
+    playWhoosh();
+    [
+      [330, 440],
+      [392, 523],
+      [440, 659],
+    ].forEach(([von, bis], i) => later(() => playGlide(von, bis, 0.5, 0.1), 300 + i * 260));
+  },
+  eis: () => {
+    [880, 1047, 1319].forEach((f, i) => later(() => playBounce(f, 0.2), 120 + i * 220));
+  },
+  zug: () => {
+    // „Tuut tuut" als weicher Zweiklang.
+    [0, 450].forEach((ms) =>
+      later(() => {
+        playTone({ freq: 392, duration: 0.25, attack: 0.02, release: 0.15, type: 'triangle', gain: 0.16 });
+        playTone({ freq: 494, duration: 0.25, attack: 0.02, release: 0.15, type: 'triangle', gain: 0.12 });
+      }, ms),
+    );
+  },
+  regenbogen: () => {
+    PENTATONIC_HZ.forEach((freq, i) =>
+      later(() => playTone({ freq, duration: 0.12, attack: 0.01, release: 0.5, gain: 0.13 }), i * 110),
+    );
+    later(() => playGlide(400, 820, 0.15, 0.12), 700);
+  },
+  flughafen: () => {
+    playGlide(180, 520, 1.4, 0.1, 'triangle');
+    later(playWhoosh, 650);
+  },
+};
 
 /** Nach einer Weile ohne Berührung ziehen die Wolken zurück — und danach kommt eine neue Landschaft. */
 function planeRueckkehr(): void {
@@ -371,10 +596,34 @@ function naechsteSzene(): void {
   // Kind den Wechsel.
   if (wolken.some((w) => w.weg)) return;
   ganzFrei = false;
-  szenenEls[szene]?.classList.remove('aktiv');
-  szene = (szene + 1) % SZENEN.length;
-  szenenEls[szene]?.classList.add('aktiv');
-  saveState<FensterState>(STATE_KEY, STATE_VERSION, { szene });
+  waehleNaechste();
+  zeigeSzene();
+}
+
+/**
+ * Nächste Landschaft aus einer gemischten Runde: Jede kommt einmal dran,
+ * bevor sich eine wiederholt, und nie zweimal hintereinander. Dazu zufällig
+ * gespiegelt — so wirkt auch eine bekannte Landschaft wieder neu.
+ */
+function waehleNaechste(): void {
+  if (reihe.length === 0) {
+    reihe = [...SZENEN];
+    for (let i = reihe.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [reihe[i], reihe[j]] = [reihe[j], reihe[i]];
+    }
+    if (reihe[0] === szene) reihe.push(reihe.shift()!);
+  }
+  szene = reihe.shift()!;
+  gespiegelt = Math.random() < 0.5;
+  saveState<FensterState>(STATE_KEY, STATE_VERSION, { szene, gespiegelt, reihe });
+}
+
+/** Nur die sichtbare Landschaft liegt im DOM — weniger Knoten für Safari. */
+function zeigeSzene(): void {
+  if (!szeneEl) return;
+  szeneEl.className = `fenster-szene sz-${szene}${gespiegelt ? ' gespiegelt' : ''}`;
+  szeneEl.innerHTML = SZENE_SVG[szene];
 }
 
 function setRollo(unten: boolean): void {
@@ -392,7 +641,7 @@ function unmount(): void {
   rueckkehrTimer = null;
   aktivePointer = new Set();
   wolken = [];
-  szenenEls = [];
+  szeneEl = null;
   stageEl = null;
   innenEl = null;
   dunstEl = null;

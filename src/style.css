@@ -2816,12 +2816,10 @@ html.ruhe *::after {
 .fenster-szene {
   position: absolute;
   inset: 0;
-  opacity: 0;
-  transition: opacity 1.2s ease-out;
 }
 
-.fenster-szene.aktiv { opacity: 1; }
 .fenster-szene svg { display: block; }
+.fenster-szene.gespiegelt svg { transform: scaleX(-1); }
 
 .fenster-dunst {
   position: absolute;
@@ -2904,12 +2902,19 @@ html.ruhe *::after {
 .fenster-szene .sz-wal,
 .fenster-szene .sz-fontaene,
 .fenster-szene .sz-voegel,
-.fenster-szene .sz-delfin {
+.fenster-szene .sz-delfin,
+.fenster-szene .sz-kuh,
+.fenster-szene .sz-traktor,
+.fenster-szene .sz-pingu,
+.fenster-szene .sz-zug,
+.fenster-szene .sz-dampf,
+.fenster-szene .sz-hase,
+.fenster-szene .sz-flieger {
   transform-box: fill-box;
   transform-origin: 50% 100%;
 }
 
-.fenster-szene.aktiv .sz-boot { animation: sz-schaukeln 3.4s ease-in-out infinite; }
+.fenster-szene .sz-boot { animation: sz-schaukeln 3.4s ease-in-out infinite; }
 
 @keyframes sz-schaukeln {
   0%, 100% { transform: translateY(0) rotate(-3deg); }
@@ -2955,7 +2960,7 @@ html.ruhe *::after {
   60% { opacity: 1; }
 }
 
-.fenster-szene.aktiv .sz-sterne { animation: sz-funkeln 3s ease-in-out infinite alternate; }
+.fenster-szene .sz-sterne { animation: sz-funkeln 3s ease-in-out infinite alternate; }
 
 @keyframes sz-funkeln {
   from { opacity: 0.5; }
@@ -2973,10 +2978,93 @@ html.ruhe *::after {
   100% { opacity: 0; transform: translate(230px, 360px) rotate(40deg); }
 }
 
+/* Bauernhof: Kuh hüpft, Traktor fährt ein Stück und zurück. */
+.feiert .sz-kuh { animation: sz-huepfer 1.2s ease-in-out 2; }
+.feiert .sz-traktor { animation: sz-traktor 1.9s ease-in-out 0.6s; }
+
+@keyframes sz-traktor {
+  0%, 100% { transform: translateX(0); }
+  45%, 55% { transform: translateX(70px); }
+}
+
+/* Ballons: schweben ständig sacht, steigen beim Feiern ein Stück. */
+.fenster-szene .sz-schweben { animation: sz-schweben 4s ease-in-out infinite alternate; }
+.feiert .sz-ballon { animation: sz-steigen 2.4s ease-in-out; }
+
+@keyframes sz-schweben {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
+
+@keyframes sz-steigen {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-40px); }
+}
+
+/* Eis: die Pinguine hüpfen nacheinander. */
+.feiert .sz-pingu { animation: sz-huepfer 0.9s ease-in-out 2; }
+.feiert .sz-pingu.p2 { animation-delay: 0.22s; }
+.feiert .sz-pingu.p3 { animation-delay: 0.44s; }
+
+/* Zug: fährt rechts hinaus und kommt links wieder herein, mit Dampf. */
+.feiert .sz-zug { animation: sz-zug 2.5s ease-in-out; }
+
+@keyframes sz-zug {
+  0% { transform: translateX(0); }
+  45% { transform: translateX(320px); }
+  45.1% { transform: translateX(-320px); }
+  100% { transform: translateX(0); }
+}
+
+.sz-dampf { opacity: 0; }
+.feiert .sz-dampf { animation: sz-dampf 1.2s ease-out; }
+
+@keyframes sz-dampf {
+  0% { opacity: 0; transform: scale(0.4); }
+  30% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-14px) scale(1.15); }
+}
+
+/* Regenbogen: leuchtet Bogen für Bogen auf, der Hase guckt aus dem Busch. */
+.sz-bogen path { opacity: 0.55; }
+.feiert .sz-bogen path { animation: sz-bogen 1.8s ease-in-out; }
+.feiert .sz-bogen path:nth-child(2) { animation-delay: 0.1s; }
+.feiert .sz-bogen path:nth-child(3) { animation-delay: 0.2s; }
+.feiert .sz-bogen path:nth-child(4) { animation-delay: 0.3s; }
+.feiert .sz-bogen path:nth-child(5) { animation-delay: 0.4s; }
+.feiert .sz-bogen path:nth-child(6) { animation-delay: 0.5s; }
+
+@keyframes sz-bogen {
+  0%, 100% { opacity: 0.55; }
+  40% { opacity: 1; }
+}
+
+.sz-hase { transform: translateY(24px); }
+.feiert .sz-hase { animation: sz-hase 2.4s ease-in-out; }
+
+@keyframes sz-hase {
+  0%, 100% { transform: translateY(24px); }
+  25%, 75% { transform: translateY(-22px); }
+}
+
+/* Flughafen: das Flugzeug startet, verschwindet am Himmel und rollt neu herein. */
+.fenster-szene .sz-flieger { transform-origin: 50% 50%; }
+.feiert .sz-flieger { animation: sz-start 2.5s ease-in; }
+
+@keyframes sz-start {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(40px, 0) rotate(0deg); }
+  55% { opacity: 1; transform: translate(170px, -130px) rotate(-16deg); }
+  60% { opacity: 0; transform: translate(190px, -150px) rotate(-16deg); }
+  61% { opacity: 0; transform: translate(-80px, 0) rotate(0deg); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fenster-wolke-innen,
-  .fenster-szene.aktiv .sz-boot,
-  .fenster-szene.aktiv .sz-sterne { animation: none; }
+  .fenster-szene .sz-boot,
+  .fenster-szene .sz-sterne,
+  .fenster-szene .sz-schweben { animation: none; }
 }
 
 /* ---------- Spieluhr ---------- */

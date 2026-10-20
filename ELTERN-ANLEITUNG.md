@@ -88,11 +88,15 @@ wild wischen und hämmern ist ausdrücklich erwünscht, nichts muss getroffen we
 
 Vier weitere, gedacht für lange Flüge:
 
-- **Flugzeugfenster** — Wolken vor dem Fenster wegwischen, darunter erscheinen
-  Meer mit Wal, Berge, Stadt bei Nacht oder eine Insel. Ist alles frei, passiert
-  etwas (Wal-Fontäne, Vogelschwarm, Lichter, Delfin). Nach einer Weile ziehen die
-  Wolken wieder zu, dann kommt eine neue Landschaft. Oben lässt sich das Rollo
-  herunterziehen — wie im echten Flugzeug.
+- **Flugzeugfenster** — Wolken vor dem Fenster wegwischen, darunter erscheint eine
+  von zehn Landschaften: Meer mit Wal, Berge, Stadt bei Nacht, Insel, Bauernhof,
+  Heißluftballons, Eisberge mit Pinguinen, Eisenbahn, Regenbogen oder Flughafen.
+  Ist alles frei, passiert etwas (Wal-Fontäne, Vogelschwarm, Lichter, Delfin, die
+  Kuh hüpft, die Ballons steigen, die Pinguine hüpfen, der Zug fährt, ein Hase
+  guckt aus dem Busch, das Flugzeug startet). Nach einer Weile ziehen die Wolken
+  wieder zu, dann kommt eine neue Landschaft — in zufälliger Reihenfolge, jede
+  einmal, bevor sich eine wiederholt, und manchmal spiegelverkehrt. Oben lässt
+  sich das Rollo herunterziehen — wie im echten Flugzeug.
 - **Spieluhr** — jeder Tipp zieht sie auf: ein Schlaflied spielt, das Mobile mit
   Mond, Stern und Schaf dreht sich. Läuft sie ab, wird sie langsamer, leiser und
   der Bildschirm dunkler — gedacht zum Einschlafen. Lieder: „Guten Abend, gut'
