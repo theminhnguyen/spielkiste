@@ -5,10 +5,11 @@ von Pok Pok (Montessori, low-stimulation, open-ended play), aber komplett eigens
 umgesetzt mit eigenen Grafiken und Sounds.
 
 **Status: Fertig (v1.2.0)** — alle Phasen aus [docs/BUILD-AUFTRAG.md](docs/BUILD-AUFTRAG.md)
-abgeschlossen. Spielzimmer + 16 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen,
+abgeschlossen. Spielzimmer + 19 Spielzeuge (Fummelbrett, Klang-Kleckse, Malen,
 Formen-Sortierer, Seifenblasen, Putzen, Sticker-Szene, Wimmelbild,
 Gute-Nacht-Szene, zum Austoben Patsch-Trommeln, Bälle schubsen und
-Laubhaufen, für lange Flüge Flugzeugfenster, Spieluhr, Aquarium und Kuckuck),
+Laubhaufen, für lange Flüge Flugzeugfenster, Spieluhr, Aquarium, Kuckuck, Tiere füttern,
+Taschenlampe und Badewanne),
 komplett offlinefähig, Zustand bleibt gespeichert, Nachtflug-Modus und
 Offline-Check im Elternbereich.
 

@@ -21,7 +21,7 @@ Offline-Speicher des iPads.
 1. App schließen (Home-Wisch nach oben).
 2. **Flugmodus einschalten** (Kontrollzentrum).
 3. Spielkiste über das Home-Bildschirm-Symbol erneut öffnen.
-4. Alle sechzehn Spielzeuge sollten normal funktionieren — dann ist die App bereit für
+4. Alle neunzehn Spielzeuge sollten normal funktionieren — dann ist die App bereit für
    unterwegs, im Auto, im Flugzeug, überall ohne Internet.
 
 *Hinweis:* Solange die App vom Home-Bildschirm gestartet wird (nicht im normalen
@@ -50,7 +50,7 @@ Der **Zurück-Pfeil** oben links reagiert nur auf ein kurzes Antippen mit einem
 Finger — ein Patscher mit der ganzen Hand, der zufällig auch den Pfeil trifft,
 holt das Kind nicht aus dem Spiel.
 
-## 5. Die sechzehn Spielzeuge
+## 5. Die neunzehn Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,
   Reißverschluss, Windrädchen, Klapptürchen mit Tieren, Zahnräder, Klingel,
@@ -106,6 +106,24 @@ Vier weitere, gedacht für lange Flüge:
 - **Kuckuck** — sechs Tücher an einer Wäscheleine; Antippen, Patschen oder
   Drüberwischen hebt sie an, ein Tier guckt heraus, winkt und ruft „Kuck-uck".
   Dahinter versteckt sich jedes Mal ein anderes Tier.
+
+Drei weitere:
+
+- **Tiere füttern** — ein Tier wartet, unten liegen Karotte, Knochen, Banane,
+  Käse und Apfel. Futter zum Tier ziehen oder einfach antippen (dann fliegt es von
+  selbst hin): Das Tier macht das Maul auf, kaut und freut sich. Jedes Tier frisst
+  alles, beim Lieblingsfutter freut es sich besonders. Nach drei Happen ist es
+  satt, geht, und das nächste kommt (Hase, Hund, Affe, Maus, Bär).
+- **Taschenlampe** — ein dunkles Kinderzimmer, der Finger ist die Taschenlampe.
+  Wo das Licht hinfällt, wacht etwas auf: die Katze unterm Bett, die Eule im
+  Regal, die Maus im Mauseloch, der Teddy winkt, der Fisch schwimmt, die Uhr
+  tickt, der Mond leuchtet. Der Bildschirm bleibt fast ganz dunkel — gut für den
+  Nachtflug.
+- **Badewanne** — ins Wasser patschen spritzt, die Enten schaukeln weg. Enten
+  antippen quietscht, man kann sie auch hin- und herschieben. Der Wasserhahn macht
+  Schaum, Schaumblasen lassen sich zerplatzen, über der Wanne steigen
+  Seifenblasen auf. An der Stöpselkette ziehen: Das Wasser gurgelt ab und läuft
+  danach von selbst wieder ein.
 
 Alles bleibt gespeichert (außer die kurzen Klang-Kleckse-Positionen) — beim
 nächsten Öffnen ist alles wieder da, wie das Kind es verlassen hat.

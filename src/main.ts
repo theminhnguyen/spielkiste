@@ -19,6 +19,9 @@ import { fenster } from './toys/fenster';
 import { spieluhr } from './toys/spieluhr';
 import { aquarium } from './toys/aquarium';
 import { kuckuck } from './toys/kuckuck';
+import { fuettern } from './toys/fuettern';
+import { lampe } from './toys/lampe';
+import { badewanne } from './toys/badewanne';
 
 loadSettings();
 
@@ -39,6 +42,9 @@ const toys: Toy[] = [
   spieluhr,
   aquarium,
   kuckuck,
+  fuettern,
+  lampe,
+  badewanne,
 ];
 
 const app = document.querySelector<HTMLDivElement>('#app')!;

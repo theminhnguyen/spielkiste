@@ -482,3 +482,71 @@ export function playWhoosh(): void {
   source.start();
   source.stop(c.currentTime + 0.32);
 }
+
+/**
+ * Wasser-Platscher: kurzes, mittelhohes Rauschen mit schnellem Abklingen,
+ * dazu ein paar zufällige „Plopp"-Tropfen hinterher.
+ */
+export function playSplash(gain = 0.22): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = c.currentTime;
+
+  const source = c.createBufferSource();
+  source.buffer = getNoiseBuffer(c);
+  const filter = c.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.setValueAtTime(1600 + Math.random() * 600, t);
+  filter.frequency.exponentialRampToValueAtTime(500, t + 0.25);
+  filter.Q.value = 0.8;
+  const env = c.createGain();
+  env.gain.setValueAtTime(0, t);
+  env.gain.linearRampToValueAtTime(gain, t + 0.01);
+  env.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+  source.connect(filter);
+  filter.connect(env);
+  env.connect(masterGain);
+  source.start(t, Math.random() * 0.2);
+  source.stop(t + 0.32);
+
+  for (let i = 0; i < 3; i++) {
+    const at = t + 0.08 + Math.random() * 0.22;
+    const osc = c.createOscillator();
+    osc.type = 'sine';
+    const f = 700 + Math.random() * 700;
+    osc.frequency.setValueAtTime(f, at);
+    osc.frequency.exponentialRampToValueAtTime(f * 1.6, at + 0.05);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(gain * 0.35, at + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.07);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start(at);
+    osc.stop(at + 0.09);
+  }
+}
+
+/** Abfluss-Gurgeln: eine Reihe kurzer, tiefer, fallender Blubber über `dauer` Sekunden. */
+export function playGurgle(dauer = 1.6, gain = 0.16): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = c.currentTime;
+  let at = t;
+  while (at < t + dauer) {
+    const osc = c.createOscillator();
+    osc.type = 'sine';
+    const f = 180 + Math.random() * 160;
+    osc.frequency.setValueAtTime(f, at);
+    osc.frequency.exponentialRampToValueAtTime(f * 0.55, at + 0.09);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(gain, at + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.11);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start(at);
+    osc.stop(at + 0.13);
+    at += 0.07 + Math.random() * 0.12;
+  }
+}
