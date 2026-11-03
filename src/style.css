@@ -4035,3 +4035,76 @@ html.ruhe *::after {
 @media (prefers-reduced-motion: reduce) {
   .bw-welle, .bw-wipp { animation: none; }
 }
+
+/* ---------- Knallfolie ---------- */
+
+.knall-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: linear-gradient(160deg, #eef6f9 0%, #e1eef3 100%);
+}
+
+.kf-blase {
+  position: absolute;
+  width: var(--kf-d);
+  height: var(--kf-d);
+  pointer-events: none;
+}
+
+/* Platte Blase: zerknitterte, blasse Folie mit Knick. */
+.kf-flach {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, transparent 47%, rgba(255, 255, 255, 0.7) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgba(255, 255, 255, 0.5) 48% 52%, transparent 53%),
+    var(--kf-platt);
+}
+
+/* Pralle Blase. Nachwachsen langsam mit kleinem Überschwingen, Platzen sofort. */
+.kf-kugel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ffffff 0 13%, var(--kf) 42%, var(--kf-rand) 100%);
+  box-shadow: 0 0.5vmin 1vmin rgba(70, 100, 120, 0.16);
+  transition: transform 600ms cubic-bezier(0.3, 1.6, 0.5, 1), opacity 400ms ease-out;
+}
+
+.kf-blase.platt .kf-kugel {
+  opacity: 0;
+  transform: scale(0.6);
+  transition: transform 90ms ease-in, opacity 90ms ease-in;
+}
+
+/* Knall: ein heller Ring fliegt auseinander (Pseudo-Element, keine zusätzlichen Knoten). */
+.kf-blase::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 0.8vmin solid rgba(255, 255, 255, 0.95);
+  opacity: 0;
+}
+
+.kf-blase.platzt::after { animation: kf-ring 0.35s ease-out; }
+
+@keyframes kf-ring {
+  0% { opacity: 1; transform: scale(0.7); }
+  100% { opacity: 0; transform: scale(1.45); }
+}
+
+.kf-blase.wackelt .kf-flach { animation: kf-wackeln 0.3s ease-out; }
+
+@keyframes kf-wackeln {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(0.88, 1.08); }
+  70% { transform: scale(1.05, 0.95); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kf-blase.platzt::after, .kf-blase.wackelt .kf-flach { animation: none; }
+}

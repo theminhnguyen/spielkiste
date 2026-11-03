@@ -15,6 +15,7 @@ import { gutenacht } from './toys/gutenacht';
 import { trommeln } from './toys/trommeln';
 import { baelle } from './toys/baelle';
 import { laub } from './toys/laub';
+import { knallfolie } from './toys/knallfolie';
 import { fenster } from './toys/fenster';
 import { spieluhr } from './toys/spieluhr';
 import { aquarium } from './toys/aquarium';
@@ -38,6 +39,7 @@ const toys: Toy[] = [
   trommeln,
   baelle,
   laub,
+  knallfolie,
   fenster,
   spieluhr,
   aquarium,

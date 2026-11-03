@@ -550,3 +550,43 @@ export function playGurgle(dauer = 1.6, gain = 0.16): void {
     at += 0.07 + Math.random() * 0.12;
   }
 }
+
+/**
+ * Knallfolien-„Plopp": ein sehr kurzer, heller Rauschklick plus ein schnell
+ * fallender Sinus — klingt nach platzender Luftblase.
+ */
+export function playPop(gain = 0.2): void {
+  const c = ctx;
+  if (!c || !masterGain || c.state !== 'running') return;
+  const t = c.currentTime;
+
+  const source = c.createBufferSource();
+  source.buffer = getNoiseBuffer(c);
+  const filter = c.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 2200 + Math.random() * 1600;
+  filter.Q.value = 1.2;
+  const env = c.createGain();
+  env.gain.setValueAtTime(0.0001, t);
+  env.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), t + 0.002);
+  env.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+  source.connect(filter);
+  filter.connect(env);
+  env.connect(masterGain);
+  source.start(t, Math.random() * 0.4);
+  source.stop(t + 0.06);
+
+  const osc = c.createOscillator();
+  osc.type = 'sine';
+  const f = 800 + Math.random() * 500;
+  osc.frequency.setValueAtTime(f, t);
+  osc.frequency.exponentialRampToValueAtTime(f * 0.3, t + 0.06);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001, gain * 0.6), t + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.start(t);
+  osc.stop(t + 0.08);
+}

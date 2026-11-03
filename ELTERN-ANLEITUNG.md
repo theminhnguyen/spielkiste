@@ -21,7 +21,7 @@ Offline-Speicher des iPads.
 1. App schließen (Home-Wisch nach oben).
 2. **Flugmodus einschalten** (Kontrollzentrum).
 3. Spielkiste über das Home-Bildschirm-Symbol erneut öffnen.
-4. Alle neunzehn Spielzeuge sollten normal funktionieren — dann ist die App bereit für
+4. Alle zwanzig Spielzeuge sollten normal funktionieren — dann ist die App bereit für
    unterwegs, im Auto, im Flugzeug, überall ohne Internet.
 
 *Hinweis:* Solange die App vom Home-Bildschirm gestartet wird (nicht im normalen
@@ -50,7 +50,7 @@ Der **Zurück-Pfeil** oben links reagiert nur auf ein kurzes Antippen mit einem
 Finger — ein Patscher mit der ganzen Hand, der zufällig auch den Pfeil trifft,
 holt das Kind nicht aus dem Spiel.
 
-## 5. Die neunzehn Spielzeuge
+## 5. Die zwanzig Spielzeuge
 
 - **Fummelbrett** — Schalter, Drehknopf, Drucktasten, Schieberegler,
   Reißverschluss, Windrädchen, Klapptürchen mit Tieren, Zahnräder, Klingel,
@@ -73,7 +73,7 @@ holt das Kind nicht aus dem Spiel.
   zudecken und wieder wecken; ruhig für die Zeit vorm Einschlafen oder
   unterwegs.
 
-Die letzten drei sind zum **Austoben** gedacht — mit der ganzen Hand patschen,
+Die nächsten vier sind zum **Austoben** gedacht — mit der ganzen Hand patschen,
 wild wischen und hämmern ist ausdrücklich erwünscht, nichts muss getroffen werden:
 
 - **Patsch-Trommeln** — vier große Trommeln mit Gesicht. Jeder Patscher irgendwo
@@ -85,6 +85,10 @@ wild wischen und hämmern ist ausdrücklich erwünscht, nichts muss getroffen we
 - **Laubhaufen** — Herbstblätter in Haufen. Patschen und Wischen wirbelt sie
   hoch, sie segeln langsam herunter und bilden neue Haufen. Unter einem Haufen
   schläft ein Igel, der beim Antippen aufwacht und hüpft.
+- **Knallfolie** — der ganze Bildschirm ist Luftpolsterfolie. Jede Berührung
+  lässt Blasen knallen, ein Patscher mit der ganzen Hand gleich mehrere,
+  Drüberwischen eine ganze Reihe. Geplatzte Blasen wachsen nach ein paar
+  Sekunden von selbst wieder nach — sie lässt sich nicht „kaputt machen".
 
 Vier weitere, gedacht für lange Flüge:
 
